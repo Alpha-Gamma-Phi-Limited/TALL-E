@@ -1,12 +1,18 @@
 # TALL-E — Price Intelligence Platform
 
-![Build](https://img.shields.io/github/actions/workflow/status/yourusername/tall-e/ci.yml?branch=main)
-![License](https://img.shields.io/github/license/yourusername/tall-e)
-![Python](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi)
-![Frontend](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61DAFB?logo=react)
-![Database](https://img.shields.io/badge/database-PostgreSQL-4169E1?logo=postgresql)
-![TypeScript](https://img.shields.io/badge/language-TypeScript-3178C6?logo=typescript)
+![Backend](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white)
+![Frontend](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=black)
+![Database](https://img.shields.io/badge/database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Cache](https://img.shields.io/badge/cache%2Fqueue-Redis-DC382D?logo=redis&logoColor=white)
+![Worker](https://img.shields.io/badge/worker-scraper%20%2F%20jobs-6E40C9)
+![Infrastructure](https://img.shields.io/badge/infrastructure-Docker-2496ED?logo=docker&logoColor=white)
+![Orchestration](https://img.shields.io/badge/orchestration-Docker%20Compose-384D54?logo=docker&logoColor=white)
+![CI](https://img.shields.io/github/actions/workflow/status/yourusername/tall-e/ci.yml?branch=main)
+![Language](https://img.shields.io/badge/language-TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
+![License](https://img.shields.io/github/license/yourusername/tall-e)
+
+
 
 ---
 
@@ -54,22 +60,39 @@ TALL-E aggregates product data from multiple retailers, normalizes inconsistent 
 ## Architecture
 
 ```text
-            ┌──────────────────────┐
-            │   Chrome Extension   │
-            └──────────┬───────────┘
+                 ┌─────────────────────────┐
+                 │      Chrome Extension   │
+                 │  (page detection + UI)  │
+                 └────────────┬────────────┘
+                              │ HTTPS (REST)
+                              │
+                 ┌────────────▼────────────┐
+                 │        Web Frontend      │
+                 │   React + Vite + TS      │
+                 └────────────┬────────────┘
+                              │ HTTPS (REST)
+                              │
+                 ┌────────────▼────────────┐
+                 │      FastAPI Backend     │
+                 │  - Search / Compare API  │
+                 │  - Matching / Ranking    │
+                 │  - Pricing Normalization │
+                 └───────┬─────────┬────────┘
+                         │         │
+                  Cache/Queue      │ SQL
+                         │         │
+               ┌─────────▼───┐   ┌▼────────────────┐
+               │    Redis     │   │   PostgreSQL     │
+               │ (cache/queue)│   │ (+ PostGIS opt.) │
+               └───────┬──────┘   └─────────────────┘
                        │
-            ┌──────────▼───────────┐
-            │      Web Frontend    │
-            │ React + Vite + TS    │
-            └──────────┬───────────┘
-                       │ REST API
-            ┌──────────▼───────────┐
-            │      FastAPI Backend │
-            │  Pricing Engine      │
-            │  Matching Engine     │
-            └──────────┬───────────┘
-                       │
-            ┌──────────▼───────────┐
-            │    PostgreSQL DB     │
-            │ + PostGIS (optional) │
-            └──────────────────────┘
+                       │ jobs (scrape/refresh/match)
+               ┌───────▼────────────────────┐
+               │    Worker / Scraper Service │
+               │  - ingestion pipelines      │
+               │  - retailer adapters        │
+               │  - dedupe + enrichment      │
+               └────────────────────────────┘
+
+      All services run locally via Docker Compose (dev) and can be deployed as containers (prod).
+
