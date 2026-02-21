@@ -17,6 +17,7 @@ def session() -> Session:
             Retailer(slug="jb-hi-fi", display_name="JB Hi-Fi", vertical="tech", active=True),
             Retailer(slug="noel-leeming", display_name="Noel Leeming", vertical="tech", active=True),
             Retailer(slug="harvey-norman", display_name="Harvey Norman", vertical="tech", active=True),
+            Retailer(slug="apple", display_name="Apple", vertical="tech", active=True),
             Retailer(slug="chemist-warehouse", display_name="Chemist Warehouse", vertical="pharma", active=True),
             Retailer(slug="bargain-chemist", display_name="Bargain Chemist", vertical="pharma", active=True),
             Retailer(slug="life-pharmacy", display_name="Life Pharmacy", vertical="pharma", active=True),

@@ -8,6 +8,7 @@ DEFAULT_RETAILERS = [
     ("jb-hi-fi", "JB Hi-Fi", "tech"),
     ("noel-leeming", "Noel Leeming", "tech"),
     ("harvey-norman", "Harvey Norman", "tech"),
+    ("apple", "Apple", "tech"),
     ("chemist-warehouse", "Chemist Warehouse", "pharma"),
     ("bargain-chemist", "Bargain Chemist", "pharma"),
     ("life-pharmacy", "Life Pharmacy", "pharma"),

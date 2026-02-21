@@ -1,0 +1,48 @@
+{
+  "retailer": "apple",
+  "items": [
+    {
+      "source_product_id": "apple-mbp-14-m4-512",
+      "title": "MacBook Pro 14-inch M4 16GB 512GB",
+      "url": "https://www.apple.com/nz/shop/buy-mac/macbook-pro/14-inch-m4-16gb-512gb",
+      "image_url": "https://cdn.example/apple/macbook-pro-14.jpg",
+      "category": "laptops",
+      "brand": "Apple",
+      "availability": "in_stock",
+      "gtin": null,
+      "mpn": "MX2E3X/A",
+      "model_number": "MacBookPro14,M4",
+      "attributes": {
+        "cpu_score": 9200,
+        "ram_gb": 16,
+        "storage_gb": 512
+      },
+      "price_nzd": 3499.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "apple-iphone-16-128",
+      "title": "iPhone 16 128GB",
+      "url": "https://www.apple.com/nz/shop/buy-iphone/iphone-16/6.1-inch-display-128gb",
+      "image_url": "https://cdn.example/apple/iphone-16.jpg",
+      "category": "phones",
+      "brand": "Apple",
+      "availability": "in_stock",
+      "gtin": null,
+      "mpn": "MYEA3X/A",
+      "model_number": "A3287",
+      "attributes": {
+        "chipset_tier": "flagship",
+        "ram_gb": 8,
+        "storage_gb": 128,
+        "battery_mah": 3561
+      },
+      "price_nzd": 1699.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

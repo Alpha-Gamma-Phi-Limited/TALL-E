@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
+from worker.adapters.apple import AppleFixtureAdapter, AppleLiveAdapter
 from worker.adapters.bargain_chemist import BargainChemistFixtureAdapter, BargainChemistLiveAdapter
 from worker.adapters.chemist_warehouse import ChemistWarehouseFixtureAdapter, ChemistWarehouseLiveAdapter
 from worker.adapters.farmers_beauty import FarmersBeautyFixtureAdapter, FarmersBeautyLiveAdapter
@@ -28,6 +29,7 @@ ADAPTERS: dict[str, AdapterRegistry] = {
     "jb-hi-fi": AdapterRegistry(fixture=JBHiFiFixtureAdapter, live=JBHiFiLiveAdapter),
     "noel-leeming": AdapterRegistry(fixture=NoelLeemingFixtureAdapter, live=NoelLeemingLiveAdapter),
     "harvey-norman": AdapterRegistry(fixture=HarveyNormanFixtureAdapter, live=HarveyNormanLiveAdapter),
+    "apple": AdapterRegistry(fixture=AppleFixtureAdapter, live=AppleLiveAdapter),
     "chemist-warehouse": AdapterRegistry(fixture=ChemistWarehouseFixtureAdapter, live=ChemistWarehouseLiveAdapter),
     "bargain-chemist": AdapterRegistry(fixture=BargainChemistFixtureAdapter, live=BargainChemistLiveAdapter),
     "life-pharmacy": AdapterRegistry(fixture=LifePharmacyFixtureAdapter, live=LifePharmacyLiveAdapter),
@@ -42,6 +44,8 @@ def run_once(
     mode: str,
     max_products: int,
     request_delay_seconds: float,
+    max_fetch_retries: int,
+    retry_backoff_seconds: float,
     use_fixture_fallback: bool,
 ) -> None:
     registry = ADAPTERS.get(retailer_slug)
@@ -54,15 +58,19 @@ def run_once(
         adapter = registry.live(
             max_products=max_products,
             request_delay_seconds=request_delay_seconds,
+            max_fetch_retries=max_fetch_retries,
+            retry_backoff_seconds=retry_backoff_seconds,
             use_fixture_fallback=use_fixture_fallback,
         )
 
     with SessionLocal() as db:
         pipeline = IngestionPipeline(db, adapter)
         run = pipeline.run()
+        fallback_used = getattr(adapter, "used_fixture_fallback", False)
         print(
             f"run={run.id} status={run.status} total={run.items_total} "
-            f"new={run.items_new} updated={run.items_updated} failed={run.items_failed}"
+            f"new={run.items_new} updated={run.items_updated} failed={run.items_failed} "
+            f"fixture_fallback={int(bool(fallback_used))}"
         )
 
 
@@ -71,7 +79,9 @@ def main() -> None:
     parser.add_argument("--retailer", required=True, choices=sorted(ADAPTERS.keys()))
     parser.add_argument("--mode", default="live", choices=["live", "fixture"])
     parser.add_argument("--max-products", type=int, default=120)
-    parser.add_argument("--request-delay-seconds", type=float, default=0.0)
+    parser.add_argument("--request-delay-seconds", type=float, default=0.35)
+    parser.add_argument("--max-fetch-retries", type=int, default=3)
+    parser.add_argument("--retry-backoff-seconds", type=float, default=1.0)
     parser.add_argument(
         "--no-fixture-fallback",
         action="store_true",
@@ -84,6 +94,8 @@ def main() -> None:
         mode=args.mode,
         max_products=max(1, args.max_products),
         request_delay_seconds=max(0.0, args.request_delay_seconds),
+        max_fetch_retries=max(0, args.max_fetch_retries),
+        retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
         use_fixture_fallback=not args.no_fixture_fallback,
     )
 

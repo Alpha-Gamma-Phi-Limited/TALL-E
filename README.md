@@ -79,7 +79,14 @@ python -m worker.main --retailer pb-tech --mode fixture
 
 ```bash
 cd worker
-python -m worker.main --retailer pb-tech --mode live --max-products 120
+python -m worker.main --retailer pb-tech --mode live --max-products 120 --max-fetch-retries 3 --retry-backoff-seconds 1.0
+```
+
+Strict live-only mode (disables fixture fallback):
+
+```bash
+cd worker
+python -m worker.main --retailer chemist-warehouse --mode live --no-fixture-fallback
 ```
 
 Retailer options:
@@ -88,6 +95,7 @@ Retailer options:
 - `jb-hi-fi`
 - `noel-leeming`
 - `harvey-norman`
+- `apple`
 - `chemist-warehouse`
 - `bargain-chemist`
 - `life-pharmacy`
