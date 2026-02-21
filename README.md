@@ -1,98 +1,161 @@
-# TALL-E — Price Intelligence Platform
+# WorthIt (TALL-E)
 
-![Backend](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi&logoColor=white)
-![Frontend](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=black)
-![Database](https://img.shields.io/badge/database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
-![Cache](https://img.shields.io/badge/cache%2Fqueue-Redis-DC382D?logo=redis&logoColor=white)
-![Worker](https://img.shields.io/badge/worker-scraper%20%2F%20jobs-6E40C9)
-![Infrastructure](https://img.shields.io/badge/infrastructure-Docker-2496ED?logo=docker&logoColor=white)
-![Orchestration](https://img.shields.io/badge/orchestration-Docker%20Compose-384D54?logo=docker&logoColor=white)
-![CI](https://img.shields.io/github/actions/workflow/status/yourusername/tall-e/ci.yml?branch=main)
-![Language](https://img.shields.io/badge/language-TypeScript-3178C6?logo=typescript&logoColor=white)
-![Status](https://img.shields.io/badge/status-in%20development-orange)
-![License](https://img.shields.io/github/license/yourusername/tall-e)
+Multi-vertical price intelligence platform for NZ retail, currently supporting technology and pharmacy.
 
+## Stack
 
+- API: FastAPI + SQLAlchemy + Alembic
+- Worker: Python ingestion pipeline + matching engine
+- Web: React + Vite + TypeScript + Radix UI
+- Data: PostgreSQL + Redis
+- Infra: Docker Compose
 
----
+## Repository Layout
 
-## Overview
+- `api/`: backend API, models, migrations, tests
+- `worker/`: ingestion adapters, matching engine, pipeline, fixtures, tests
+- `web/`: 3-pane UI workspace (filter rail, data grid, inspector)
+- `shared/verticals/tech/`: taxonomy, attributes, value scoring config
+- `shared/verticals/pharma/`: taxonomy, attributes, vertical config
+- `infra/`: docker-compose for local stack
 
-**TALL-E** is a real-time price comparison platform that helps users find the best deals across beauty, pharmacy, and technology products.
+## Quick Start
 
-It is available as:
-- A web application
-- A Chrome extension that integrates directly into retailer websites
+### Option A: Docker Compose
 
-TALL-E aggregates product data from multiple retailers, normalizes inconsistent listings, and computes true comparable prices so users can make informed purchasing decisions.
+```bash
+cd infra
+docker compose up --build
+```
 
----
+API will be available at `http://localhost:8000` and web at `http://localhost:5173`.
 
-## Features
+To include worker services:
 
-- **Cross-Retailer Price Comparison**
-  - Compare identical products across multiple stores
-  - Detect duplicates despite inconsistent naming
+```bash
+cd infra
+docker compose --profile workers up --build
+```
 
-- **Price Normalization**
-  - Unit price calculations (e.g. per ml, per gram)
-  - Multi-buy decomposition ("2 for $30" → per-unit price)
+### Option B: Local Processes
 
-- **Location-Aware Results**
-  - Filter by nearby stores
-  - Availability-based ranking
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r api/requirements.txt
+pip install -r worker/requirements.txt
+cd web && npm install && cd ..
+```
 
-- **Chrome Extension Integration**
-  - Detect products on retailer pages
-  - Display cheaper alternatives inline
+## API Endpoints
 
-- **Product Matching System**
-  - Parse unstructured product names into structured attributes
-  - Match across retailers using heuristics and rules
+- `GET /v1/products`
+- `GET /v1/products/{id}`
+- `GET /v1/meta`
+- `GET /v2/products?vertical=tech|pharma`
+- `GET /v2/products/{id}?vertical=tech|pharma`
+- `GET /v2/meta?vertical=tech|pharma`
+- `POST /v1/admin/reconcile` (requires `X-Admin-Token`)
+- `GET /v1/admin/ingestion-runs` (requires `X-Admin-Token`)
+- `GET /health`
 
-- **Planned Features**
-  - Price history tracking
-  - Discount validation
-  - Price alerts
+## Local Development
 
----
+### API
 
-## Architecture
+```bash
+cd api
+uvicorn app.main:app --reload --port 8000
+```
 
-```text
-                 ┌─────────────────────────┐
-                 │      Chrome Extension   │
-                 │  (page detection + UI)  │
-                 └────────────┬────────────┘
-                              │ HTTPS (REST)
-                              │
-                 ┌────────────▼────────────┐
-                 │        Web Frontend      │
-                 │   React + Vite + TS      │
-                 └────────────┬────────────┘
-                              │ HTTPS (REST)
-                              │
-                 ┌────────────▼────────────┐
-                 │      FastAPI Backend     │
-                 │  - Search / Compare API  │
-                 │  - Matching / Ranking    │
-                 │  - Pricing Normalization │
-                 └───────┬─────────┬────────┘
-                         │         │
-                  Cache/Queue      │ SQL
-                         │         │
-               ┌─────────▼───┐   ┌▼────────────────┐
-               │    Redis     │   │   PostgreSQL     │
-               │ (cache/queue)│   │ (+ PostGIS opt.) │
-               └───────┬──────┘   └─────────────────┘
-                       │
-                       │ jobs (scrape/refresh/match)
-               ┌───────▼────────────────────┐
-               │    Worker / Scraper Service │
-               │  - ingestion pipelines      │
-               │  - retailer adapters        │
-               │  - dedupe + enrichment      │
-               └────────────────────────────┘
+### Worker (fixture mode)
 
-      All services run locally via Docker Compose (dev) and can be deployed as containers (prod).
+```bash
+cd worker
+python -m worker.main --retailer pb-tech --mode fixture
+```
 
+### Worker (live mode)
+
+```bash
+cd worker
+python -m worker.main --retailer pb-tech --mode live --max-products 120
+```
+
+Retailer options:
+
+- `pb-tech`
+- `jb-hi-fi`
+- `noel-leeming`
+- `harvey-norman`
+- `chemist-warehouse`
+- `bargain-chemist`
+- `life-pharmacy`
+
+### Web
+
+```bash
+cd web
+npm run dev
+```
+
+Set API base URL when needed:
+
+```bash
+VITE_API_BASE_URL=http://localhost:8000 npm run dev
+```
+
+## Make Targets
+
+```bash
+make test
+make run-api
+make run-web
+make worker-pb
+```
+
+## Database Notes
+
+Core tables:
+
+- `products`
+- `retailer_products`
+- `prices`
+- `latest_prices`
+- `ingestion_runs`
+- `retailers`
+- `product_overrides`
+
+Initial Alembic migration lives in `api/alembic/versions/0001_initial.py`.
+
+## Matching Priority
+
+1. GTIN
+2. MPN/model number
+3. Manual override
+4. Fuzzy match (brand/category constrained + attribute overlap)
+
+## Caching
+
+Redis cache keys:
+
+- `products:{hash}:page:{n}:v:{version}`
+- `product:{id}:v:{version}`
+- `meta:{vertical}:v:{version}`
+
+Configured via `WORTHIT_CACHE_SCHEMA_VERSION`.
+
+## Tests
+
+```bash
+pytest
+```
+
+## Environment Variables
+
+- `WORTHIT_DATABASE_URL`
+- `WORTHIT_REDIS_URL`
+- `WORTHIT_ADMIN_TOKEN`
+- `WORTHIT_CACHE_SCHEMA_VERSION`
+
+See `infra/.env.example`.
