@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -7,6 +8,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
 from worker.adapters.base import SourceAdapter
+from worker.matching.normalization import normalize_text
 from worker.matching.engine import MatchingEngine
 from worker.models import IngestionRun, LatestPrice, Price, Product, Retailer, RetailerProduct
 
@@ -68,7 +70,9 @@ class IngestionPipeline:
         match = self.matcher.match(normalized, retailer_product_id=retailer_product_id)
 
         product_id = match.product_id
-        if not product_id:
+        product = self.db.get(Product, product_id) if product_id else None
+        if not product_id or product is None:
+            merged_attributes = self._merge_attributes(normalized.attributes, normalized.raw_attributes)
             product = Product(
                 canonical_name=normalized.canonical_name,
                 vertical=normalized.vertical,
@@ -78,12 +82,40 @@ class IngestionPipeline:
                 gtin=normalized.gtin,
                 mpn=normalized.mpn,
                 image_url=normalized.image_url,
-                attributes=normalized.attributes,
-                searchable_text=f"{normalized.canonical_name} {normalized.model_number or ''} {normalized.mpn or ''}",
+                attributes=merged_attributes,
+                searchable_text=self._build_searchable_text(
+                    normalized=normalized,
+                    product_attributes=merged_attributes,
+                    raw_attributes=normalized.raw_attributes,
+                    existing_text="",
+                ),
             )
             self.db.add(product)
             self.db.flush()
             product_id = product.id
+        else:
+            if normalized.image_url and not product.image_url:
+                product.image_url = normalized.image_url
+            if normalized.model_number and not product.model_number:
+                product.model_number = normalized.model_number
+            if normalized.gtin and not product.gtin:
+                product.gtin = normalized.gtin
+            if normalized.mpn and not product.mpn:
+                product.mpn = normalized.mpn
+            if normalized.brand and (not product.brand or product.brand.lower() in {"unknown", "generic"}):
+                product.brand = normalized.brand
+            if normalized.category and (not product.category or product.category.lower() in {"unknown", "other"}):
+                product.category = normalized.category
+
+            merged_attributes = self._merge_attributes(product.attributes, normalized.attributes)
+            merged_attributes = self._merge_attributes(merged_attributes, normalized.raw_attributes)
+            product.attributes = merged_attributes
+            product.searchable_text = self._build_searchable_text(
+                normalized=normalized,
+                product_attributes=merged_attributes,
+                raw_attributes=normalized.raw_attributes,
+                existing_text=product.searchable_text or "",
+            )
 
         if retailer_product is None:
             retailer_product = RetailerProduct(
@@ -138,3 +170,80 @@ class IngestionPipeline:
 
         self.db.flush()
         return is_new
+
+    def _merge_attributes(self, base: dict[str, object] | None, incoming: dict[str, object] | None) -> dict[str, object]:
+        merged = dict(base or {})
+        for key, value in (incoming or {}).items():
+            if self._is_empty_attr_value(value):
+                continue
+            if key not in merged or self._is_empty_attr_value(merged.get(key)):
+                merged[key] = value
+        return merged
+
+    @staticmethod
+    def _is_empty_attr_value(value: object | None) -> bool:
+        if value is None:
+            return True
+        if isinstance(value, str):
+            return value.strip() == ""
+        if isinstance(value, (list, tuple, set, dict)):
+            return len(value) == 0
+        return False
+
+    def _build_searchable_text(
+        self,
+        normalized,
+        product_attributes: dict[str, object],
+        raw_attributes: dict[str, object],
+        existing_text: str,
+    ) -> str:
+        chunks = [
+            existing_text,
+            normalized.canonical_name,
+            normalized.title,
+            normalized.brand,
+            normalized.category,
+            normalized.model_number or "",
+            normalized.gtin or "",
+            normalized.mpn or "",
+        ]
+        chunks.extend(self._attribute_tokens(product_attributes))
+        chunks.extend(self._attribute_tokens(raw_attributes))
+
+        tokens: list[str] = []
+        seen: set[str] = set()
+        for chunk in chunks:
+            normalized_chunk = normalize_text(str(chunk) if chunk is not None else "")
+            if not normalized_chunk:
+                continue
+            for token in normalized_chunk.split():
+                if token in seen:
+                    continue
+                seen.add(token)
+                tokens.append(token)
+                if len(tokens) >= 220:
+                    return " ".join(tokens)
+        return " ".join(tokens)
+
+    def _attribute_tokens(self, attributes: dict[str, object]) -> list[str]:
+        tokens: list[str] = []
+        for key, value in attributes.items():
+            tokens.append(str(key))
+            if isinstance(value, dict):
+                for child_key, child_value in value.items():
+                    tokens.append(str(child_key))
+                    tokens.append(str(child_value))
+                continue
+            if isinstance(value, (list, tuple, set)):
+                for item in list(value)[:8]:
+                    tokens.append(str(item))
+                continue
+            if isinstance(value, str):
+                compact = value.strip()
+                if compact:
+                    tokens.append(compact)
+                    if re.search(r"[A-Za-z]\d|\d[A-Za-z]", compact):
+                        tokens.append(compact.replace(" ", ""))
+                continue
+            tokens.append(str(value))
+        return tokens
