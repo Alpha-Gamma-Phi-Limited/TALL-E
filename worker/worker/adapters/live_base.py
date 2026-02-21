@@ -17,6 +17,7 @@ from bs4 import BeautifulSoup
 
 from worker.adapters.base import NormalizedRetailerProduct, RawDetail, RawListing, SourceAdapter
 from worker.adapters.fixture_adapter import FixtureAdapter
+from worker.fetchers.browser import fetch_page_html
 from worker.matching.normalization import normalize_identifier
 
 
@@ -346,8 +347,8 @@ class LiveRetailerAdapter(SourceAdapter):
         retry_backoff_seconds: float = 0.6,
         use_fixture_fallback: bool = True,
         proxy_url: str | None = None,
-        browser_fallback: bool = False,
-        browser_timeout_seconds: float = 30.0,
+        browser_fallback: bool | None = None,
+        browser_timeout_seconds: float | None = None,
         browser_proxy_url: str | None = None,
         vertical: str | None = None,
         include_url_patterns: list[str] | None = None,
@@ -358,8 +359,12 @@ class LiveRetailerAdapter(SourceAdapter):
         self.retry_backoff_seconds = max(0.0, retry_backoff_seconds)
         self.use_fixture_fallback = use_fixture_fallback
         self.proxy_url = proxy_url
-        self.browser_fallback = browser_fallback
-        self.browser_timeout_seconds = max(5.0, browser_timeout_seconds)
+        cls = type(self)
+        self.browser_fallback = browser_fallback if browser_fallback is not None else bool(getattr(cls, "browser_fallback", False))
+        if browser_timeout_seconds is not None:
+            self.browser_timeout_seconds = max(5.0, browser_timeout_seconds)
+        else:
+            self.browser_timeout_seconds = max(5.0, float(getattr(cls, "browser_timeout_seconds", 30.0)))
         self.browser_proxy_url = browser_proxy_url
         if vertical:
             self.vertical = vertical
@@ -372,10 +377,14 @@ class LiveRetailerAdapter(SourceAdapter):
         self.client = httpx.Client(
             timeout=timeout_seconds,
             headers={
-                "User-Agent": (
-                    "WorthItBot/1.0 (+https://worthit.tech; "
-                    "research-price-comparison; contact=ops@worthit.tech)"
-                )
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Accept-Language": "en-NZ,en-GB;q=0.9,en;q=0.8",
+                "Upgrade-Insecure-Requests": "1",
+                "Sec-Fetch-Dest": "document",
+                "Sec-Fetch-Mode": "navigate",
+                "Sec-Fetch-Site": "none",
+                "Sec-Fetch-User": "?1",
             },
             follow_redirects=True,
             proxy=proxy_url,
@@ -562,6 +571,12 @@ class LiveRetailerAdapter(SourceAdapter):
         )
 
     def _infer_vertical(self, listing: RawListing, detail: RawDetail) -> VerticalInference:
+        # Specialized adapters that declare a non-default vertical are authoritative.
+        # Only adapters using the generic "tech" default need text inference to detect
+        # cross-category products (e.g. Harvey Norman selling whiteware alongside laptops).
+        if self.vertical != "tech":
+            return VerticalInference(vertical=self.vertical, source="adapter_declared", confidence=0.90)
+
         category_signal = self._infer_vertical_from_text(listing.category)
         if category_signal:
             category_source = listing.category_source or "structured_category"
@@ -1176,6 +1191,14 @@ class LiveRetailerAdapter(SourceAdapter):
         self._append_price(structured_candidates, self._extract_meta_content(soup, "name", "price"))
         self._append_price(structured_candidates, self._extract_meta_content(soup, "property", "og:price:amount"))
 
+        # Schema.org HTML microdata and data-price attributes
+        for el in soup.find_all(attrs={"itemprop": "price"}):
+            self._append_price(structured_candidates, el.get("content") or el.get_text(strip=True))
+        for el in soup.find_all(attrs={"data-price": True}):
+            self._append_price(structured_candidates, el.get("data-price"))
+        for el in soup.find_all(attrs={"data-product-price": True}):
+            self._append_price(structured_candidates, el.get("data-product-price"))
+
         text_prices = self._extract_prices_from_text(soup.get_text(" ", strip=True))
         for value in text_prices[:12]:
             self._append_price(text_candidates, value)
@@ -1660,6 +1683,19 @@ class LiveRetailerAdapter(SourceAdapter):
             blocked_phrases = ["request unsuccessful", "incident id", "access denied", "blocked"]
             if any(phrase in lowered for phrase in blocked_phrases):
                 return True
+
+        # DataDome challenge page
+        if "g.datadome.co" in lowered or ("datadome" in lowered and len(html) < 5000):
+            return True
+
+        # PerimeterX / HUMAN Security challenge
+        if "perimeterx" in lowered or (("px.js" in lowered or "_pxhd" in lowered) and len(html) < 5000):
+            return True
+
+        # Akamai Bot Manager
+        if "akamai" in lowered and ("_abck" in lowered or "/akam/" in lowered):
+            return True
+
         return False
 
     def _looks_like_missing_page(self, soup: BeautifulSoup) -> bool:
@@ -1683,20 +1719,49 @@ class LiveRetailerAdapter(SourceAdapter):
         digest = hashlib.sha1(base.encode("utf-8")).hexdigest()[:16]
         return f"{self.retailer_slug}-{digest}"
 
+    def _fetch_text_with_browser(self, url: str) -> str:
+        proxy_url = self.browser_proxy_url or self.proxy_url
+        logger.info("Using browser fallback for %s URL: %s", self.retailer_slug, url)
+        return fetch_page_html(
+            url,
+            timeout_seconds=self.browser_timeout_seconds,
+            user_agent=None,
+            proxy_url=proxy_url,
+        )
+
     def _fetch_text(self, url: str) -> str:
         attempts = self.max_fetch_retries + 1
+        http_exc: Exception | None = None
         for attempt in range(attempts):
-            response = self._request_with_retries(url)
-            text = response.text
+            try:
+                response = self._request_with_retries(url)
+                text = response.text
+            except Exception as exc:
+                http_exc = exc
+                break
+
             if not self._looks_like_bot_challenge(text):
                 return text
 
+            http_exc = RuntimeError(f"Blocked by anti-bot challenge for {self.retailer_slug}: {url}")
             if attempt >= attempts - 1:
-                raise RuntimeError(f"Blocked by anti-bot challenge for {self.retailer_slug}: {url}")
+                break
 
             backoff = self.retry_backoff_seconds * (2**attempt)
             if backoff > 0:
                 time.sleep(backoff)
+
+        if self.browser_fallback and http_exc is not None:
+            try:
+                html = self._fetch_text_with_browser(url)
+            except Exception:
+                raise http_exc
+            if self._looks_like_bot_challenge(html):
+                raise http_exc
+            return html
+
+        if http_exc is not None:
+            raise http_exc
 
         raise RuntimeError(f"Unreachable fetch-text retry state for {url}")
 

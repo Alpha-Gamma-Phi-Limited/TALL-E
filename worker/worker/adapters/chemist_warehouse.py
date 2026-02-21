@@ -11,6 +11,7 @@ class ChemistWarehouseFixtureAdapter(FixtureAdapter):
 class ChemistWarehouseLiveAdapter(LiveRetailerAdapter):
     vertical = "pharmaceuticals"
     retailer_slug = "chemist-warehouse"
+    browser_fallback = True
     base_url = "https://www.chemistwarehouse.co.nz"
     sitemap_seeds = [
         "/sitemap.xml",

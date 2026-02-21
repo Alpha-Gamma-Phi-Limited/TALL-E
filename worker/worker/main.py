@@ -106,7 +106,7 @@ def run_once(
     retry_backoff_seconds: float,
     use_fixture_fallback: bool,
     proxy_url: str | None,
-    browser_fallback: bool,
+    browser_fallback: bool | None,
     browser_timeout_seconds: float,
     browser_proxy_url: str | None,
     vertical: str | None = None,
@@ -159,7 +159,7 @@ def main() -> None:
     parser.add_argument(
         "--browser-fallback",
         action="store_true",
-        help="Enable headless browser fallback for blocked live pages (primarily Harvey Norman)",
+        help="Force-enable headless browser fallback for blocked pages (adapters with browser_fallback=True enable it automatically)",
     )
     parser.add_argument("--browser-timeout-seconds", type=float, default=35.0)
     parser.add_argument("--browser-proxy-url", default=None, help="Optional proxy URL specifically for browser fallback")
@@ -175,7 +175,7 @@ def main() -> None:
         retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
         use_fixture_fallback=not args.no_fixture_fallback,
         proxy_url=args.proxy_url,
-        browser_fallback=args.browser_fallback,
+        browser_fallback=True if args.browser_fallback else None,
         browser_timeout_seconds=max(5.0, args.browser_timeout_seconds),
         browser_proxy_url=args.browser_proxy_url,
         vertical=args.vertical,

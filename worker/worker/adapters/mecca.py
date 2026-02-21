@@ -11,6 +11,7 @@ class MeccaFixtureAdapter(FixtureAdapter):
 class MeccaLiveAdapter(LiveRetailerAdapter):
     vertical = "beauty"
     retailer_slug = "mecca"
+    browser_fallback = True
     base_url = "https://www.meccabeauty.co.nz"
     sitemap_seeds = [
         "/sitemap.xml",

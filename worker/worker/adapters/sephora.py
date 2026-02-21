@@ -11,6 +11,7 @@ class SephoraFixtureAdapter(FixtureAdapter):
 class SephoraLiveAdapter(LiveRetailerAdapter):
     vertical = "beauty"
     retailer_slug = "sephora"
+    browser_fallback = True
     base_url = "https://www.sephora.nz"
     sitemap_seeds = [
         "/sitemap.xml",
