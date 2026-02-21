@@ -29,6 +29,8 @@ services:
       - "8000:8000"
     volumes:
       - ../shared:/app/shared
+      - ../api/tests:/app/tests
+      - ../api/app:/app/app
 
   worker:
     build:
@@ -39,6 +41,9 @@ services:
       - postgres
     profiles:
       - workers
+    volumes:
+      - ../worker/tests:/app/tests
+      - ../worker/worker:/app/worker
 
   web:
     build:

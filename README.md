@@ -1,6 +1,6 @@
 # WorthIt (TALL-E)
 
-Multi-vertical price intelligence platform for NZ retail, currently supporting technology, pharmacy, and beauty.
+Multi-vertical price intelligence platform for NZ retail, currently supporting technology, home & appliances, pharmaceuticals, supplements, beauty, and pet goods.
 
 ## Stack
 
@@ -16,7 +16,10 @@ Multi-vertical price intelligence platform for NZ retail, currently supporting t
 - `worker/`: ingestion adapters, matching engine, pipeline, fixtures, tests
 - `web/`: 3-pane UI workspace (filter rail, data grid, inspector)
 - `shared/verticals/tech/`: taxonomy, attributes, value scoring config
-- `shared/verticals/pharma/`: taxonomy, attributes, vertical config
+- `shared/verticals/home-appliances/`: taxonomy, attributes, scoring config
+- `shared/verticals/pharmaceuticals/`: taxonomy, attributes, vertical config
+- `shared/verticals/supplements/`: taxonomy, attributes, scoring config
+- `shared/verticals/pet-goods/`: taxonomy, attributes, scoring config
 - `infra/`: docker-compose for local stack
 
 ## Quick Start
@@ -52,9 +55,9 @@ cd web && npm install && cd ..
 - `GET /v1/products`
 - `GET /v1/products/{id}`
 - `GET /v1/meta`
-- `GET /v2/products?vertical=tech|pharma|beauty`
-- `GET /v2/products/{id}?vertical=tech|pharma|beauty`
-- `GET /v2/meta?vertical=tech|pharma|beauty`
+- `GET /v2/products?vertical=tech|home-appliances|pharmaceuticals|supplements|beauty|pet-goods`
+- `GET /v2/products/{id}?vertical=tech|home-appliances|pharmaceuticals|supplements|beauty|pet-goods`
+- `GET /v2/meta?vertical=tech|home-appliances|pharmaceuticals|supplements|beauty|pet-goods`
 - `POST /v1/admin/reconcile` (requires `X-Admin-Token`)
 - `GET /v1/admin/ingestion-runs` (requires `X-Admin-Token`)
 - `GET /health`
@@ -82,6 +85,13 @@ cd worker
 python -m worker.main --retailer pb-tech --mode live --max-products 120 --max-fetch-retries 3 --retry-backoff-seconds 1.0
 ```
 
+Harvey Norman browser/proxy fallback mode:
+
+```bash
+cd worker
+python -m worker.main --retailer harvey-norman --mode live --browser-fallback --browser-timeout-seconds 45 --proxy-url http://user:pass@proxy-host:port
+```
+
 Strict live-only mode (disables fixture fallback):
 
 ```bash
@@ -96,12 +106,18 @@ Retailer options:
 - `noel-leeming`
 - `harvey-norman`
 - `apple`
+- `mighty-ape`
+- `heathcotes`
 - `chemist-warehouse`
 - `bargain-chemist`
 - `life-pharmacy`
 - `mecca`
 - `sephora`
-- `farmers-beauty`
+- `supplements-co-nz`
+- `animates`
+- `petdirect`
+- `pet-co-nz`
+- `farmers`
 
 ### Web
 
