@@ -30,18 +30,6 @@ export default function CommandBar({ filters, setFilters, total, meta }: Props) 
     <section className="controls-wrap">
       <div className="control-row">
         <label>
-          Category
-          <select value={filters.category} onChange={(e) => setFilters({ category: e.target.value })}>
-            <option value="">All categories</option>
-            {(meta?.categories ?? []).map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label>
           Brand
           <select value={filters.brand} onChange={(e) => setFilters({ brand: e.target.value })}>
             <option value="">All brands</option>

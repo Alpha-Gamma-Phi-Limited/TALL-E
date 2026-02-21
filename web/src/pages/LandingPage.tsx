@@ -29,8 +29,11 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, [vertical]);
 
-  const handleSearch = (query: string) => {
-    navigate(`/search?vertical=${vertical}&q=${encodeURIComponent(query)}`);
+  const handleType = (newQ: string) => {
+    setQ(newQ);
+    if (newQ.trim().length > 0) {
+      navigate(`/search?vertical=${vertical}&q=${encodeURIComponent(newQ)}`);
+    }
   };
 
   return (
@@ -40,14 +43,16 @@ export default function LandingPage() {
         <h2>Price comparison across major New Zealand retailers.</h2>
 
         <div className="landing-search">
-          <SearchBar 
-            filters={{ q, vertical } as any} 
+          <SearchBar
+            filters={{ q, vertical } as any}
             setFilters={(patch) => {
-              if (patch.q !== undefined) {
-                setQ(patch.q);
+              if (patch.q !== undefined) handleType(patch.q);
+            }}
+            onSearch={(query) => {
+              if (query.trim().length > 0) {
+                navigate(`/search?vertical=${vertical}&q=${encodeURIComponent(query)}`);
               }
-            }} 
-            onSearch={handleSearch}
+            }}
           />
         </div>
 

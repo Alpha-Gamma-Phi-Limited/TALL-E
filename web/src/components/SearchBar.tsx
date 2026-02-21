@@ -6,9 +6,10 @@ type Props = {
   filters: Partial<ProductFilters>;
   setFilters: (patch: Partial<ProductFilters>) => void;
   onSearch?: (q: string) => void;
+  autoFocus?: boolean;
 };
 
-export default function SearchBar({ filters, setFilters, onSearch }: Props) {
+export default function SearchBar({ filters, setFilters, onSearch, autoFocus }: Props) {
   const searchPlaceholder =
     filters.vertical === "pharmaceuticals"
       ? "Search by product name, ingredient, strength"
@@ -35,6 +36,8 @@ export default function SearchBar({ filters, setFilters, onSearch }: Props) {
         }}
         placeholder={searchPlaceholder}
         aria-label="Search products"
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus={autoFocus}
       />
     </div>
   );

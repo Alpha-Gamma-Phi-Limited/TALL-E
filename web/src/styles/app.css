@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550..700&display=swap");
 
 :root {
-  --bg: #ffffff;
-  --bg-soft: #f8f7f4;
+  --bg: #faf9f6;
+  --bg-soft: #f2f0eb;
   --panel: #ffffff;
-  --panel-soft: #fcfbf8;
+  --panel-soft: #faf9f6;
   --text: #18171b;
   --muted: #4e4d55;
   --muted-soft: #66636c;
@@ -32,7 +32,7 @@ body,
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 55%, var(--bg-soft) 100%);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -68,11 +68,16 @@ select {
 }
 
 .apple-shell,
-.landing-shell,
-.results-shell {
+.landing-shell {
   max-width: 1220px;
   margin: 0 auto;
   padding: 20px 20px 40px;
+}
+
+.results-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
 }
 
 .landing-shell {
@@ -131,30 +136,21 @@ select {
   color: var(--text);
 }
 
+.results-right {
+  min-width: 0;
+  padding: 0 28px 40px;
+}
+
 .results-header {
   display: flex;
   align-items: center;
-  gap: 32px;
   margin-bottom: 8px;
-  padding: 8px 0;
+  padding: 10px 0;
   position: sticky;
   top: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(250, 249, 246, 0.94);
   backdrop-filter: blur(12px);
   z-index: 50;
-}
-
-.results-header .logo {
-  font-family: var(--font-heading);
-  font-size: 1.6rem;
-  font-weight: 750;
-  color: var(--text);
-  letter-spacing: -0.04em;
-  transition: opacity 120ms ease;
-}
-
-.results-header .logo:hover {
-  opacity: 0.7;
 }
 
 .results-header .search-control {
@@ -162,6 +158,34 @@ select {
   flex: 1;
   height: 44px;
   border-radius: 10px;
+}
+
+.results-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 2px 0;
+}
+
+.result-count {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.sort-select {
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.sort-select:hover {
+  border-color: var(--border-strong);
 }
 
 .vertical-subbar {
@@ -382,7 +406,7 @@ select {
   align-items: center;
   padding: 0 14px;
   gap: 10px;
-  background: #fff;
+  background: var(--bg-soft);
   max-width: 800px;
   margin: 24px auto 0;
 }
@@ -908,4 +932,145 @@ select {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+/* ── Results sidebar ────────────────────────────────── */
+.results-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--panel);
+  padding: 20px 14px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 750;
+  color: var(--text);
+  letter-spacing: -0.04em;
+  display: block;
+  margin-bottom: 24px;
+  transition: opacity 120ms ease;
+}
+
+.sidebar-logo:hover {
+  opacity: 0.7;
+}
+
+.sidebar-heading {
+  margin: 20px 0 6px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted-soft);
+  padding: 0 10px;
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.category-list li {
+  display: contents;
+}
+
+.category-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 120ms var(--ease-out), color 120ms var(--ease-out);
+}
+
+.category-item:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.category-item.is-active {
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* 5-col product grid on results page */
+.results-right .card-grid {
+  --grid-cols: 5;
+}
+
+/* Sidebar promo button */
+.sidebar-promo {
+  margin-top: 16px;
+  width: 100%;
+  text-align: left;
+}
+
+/* Sidebar retailer chips */
+.sidebar-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+/* ── Keyframe animations ────────────────────────────── */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes enter-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Results page entry animations ─────────────────── */
+.results-header {
+  animation: enter-down 200ms var(--ease-out) both;
+}
+
+.results-subnav {
+  animation: enter-fade 260ms 80ms var(--ease-out) both;
+}
+
+.products-area {
+  animation: enter-up 320ms 120ms var(--ease-out) both;
 }

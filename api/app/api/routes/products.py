@@ -12,6 +12,7 @@ router = APIRouter(prefix="/v1/products", tags=["products"])
 @router.get("", response_model=ProductsListOut)
 def list_products(
     q: str | None = Query(default=None),
+    vertical: str | None = Query(default=None),
     category: str | None = Query(default=None),
     brand: str | None = Query(default=None),
     retailers: str | None = Query(default=None),
@@ -28,6 +29,7 @@ def list_products(
         retailer_list = [item.strip() for item in retailers.split(",") if item.strip()]
     params = ProductSearchParams(
         q=q,
+        vertical=vertical,
         category=category,
         brand=brand,
         retailers=retailer_list,
