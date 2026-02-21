@@ -15,6 +15,7 @@ Multi-vertical price intelligence platform for NZ retail, currently supporting t
 - `api/`: backend API, models, migrations, tests
 - `worker/`: ingestion adapters, matching engine, pipeline, fixtures, tests
 - `web/`: 3-pane UI workspace (filter rail, data grid, inspector)
+- `web/chrome-extension/`: manifest v3 popup UI prototype for a Chrome extension
 - `shared/verticals/tech/`: taxonomy, attributes, value scoring config
 - `shared/verticals/home-appliances/`: taxonomy, attributes, scoring config
 - `shared/verticals/pharmaceuticals/`: taxonomy, attributes, vertical config
@@ -186,3 +187,11 @@ pytest
 - `WORTHIT_CACHE_SCHEMA_VERSION`
 
 See `infra/.env.example`.
+
+
+### Chrome Extension Prototype
+
+```bash
+cd web/chrome-extension
+# load this folder via chrome://extensions > Load unpacked
+```
