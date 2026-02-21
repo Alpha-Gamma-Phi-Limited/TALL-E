@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-export type Vertical = "tech" | "pharma";
+export type Vertical = "tech" | "pharma" | "beauty";
 
 export type ProductFilters = {
   vertical: Vertical;
@@ -30,10 +30,13 @@ const DEFAULTS: ProductFilters = {
 const DEFAULT_SORT_BY_VERTICAL: Record<Vertical, string> = {
   tech: "value_desc",
   pharma: "price_asc",
+  beauty: "price_asc",
 };
 
 function parseVertical(value: string | null): Vertical {
-  return value === "pharma" ? "pharma" : "tech";
+  if (value === "pharma") return "pharma";
+  if (value === "beauty") return "beauty";
+  return "tech";
 }
 
 export function useProductSearchParams() {

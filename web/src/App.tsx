@@ -9,7 +9,7 @@ import { useProductSearchParams, Vertical } from "./hooks/useProductSearchParams
 const verticalTabs = [
   { key: "tech", label: "Technology", enabled: true },
   { key: "pharma", label: "Pharma", enabled: true },
-  { key: "beauty", label: "Beauty", enabled: false },
+  { key: "beauty", label: "Beauty", enabled: true },
   { key: "sport", label: "Sport", enabled: false },
 ] as const;
 
@@ -29,10 +29,10 @@ export default function App() {
   }, [filters.vertical]);
 
   useEffect(() => {
-    if (filters.vertical === "pharma" && filters.sort === "value_desc") {
-      setFilters({ sort: defaultSortByVertical.pharma });
+    if (filters.vertical !== "tech" && filters.sort === "value_desc") {
+      setFilters({ sort: defaultSortByVertical[filters.vertical] });
     }
-  }, [defaultSortByVertical.pharma, filters.sort, filters.vertical]);
+  }, [defaultSortByVertical, filters.sort, filters.vertical, setFilters]);
 
   useEffect(() => {
     setLoadingProducts(true);

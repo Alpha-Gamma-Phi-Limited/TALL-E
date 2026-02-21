@@ -31,7 +31,9 @@ export default function CommandBar({ filters, setFilters, total, meta }: Props) 
   const searchPlaceholder =
     filters.vertical === "pharma"
       ? "Search by product name, ingredient, strength"
-      : "Search by product name, model, GTIN";
+      : filters.vertical === "beauty"
+        ? "Search by product name, brand, skin concern"
+        : "Search by product name, model, GTIN";
 
   return (
     <section className="controls-wrap">

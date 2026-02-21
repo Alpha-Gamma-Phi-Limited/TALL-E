@@ -15,6 +15,12 @@ export default function DataGrid({ items, selectedId, onSelect }: Props) {
     return <div className="empty-cards">No products match your filters.</div>;
   }
 
+  const verticalPlaceholder = (vertical: string) => {
+    if (vertical === "pharma") return "PHARMA";
+    if (vertical === "beauty") return "BEAUTY";
+    return "TECH";
+  };
+
   const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>, id: string) => {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
@@ -40,7 +46,7 @@ export default function DataGrid({ items, selectedId, onSelect }: Props) {
               {item.image_url ? (
                 <img src={item.image_url} alt={item.canonical_name} loading="lazy" />
               ) : (
-                <div className="media-placeholder">{item.vertical === "pharma" ? "PHARMA" : "TECH"}</div>
+                <div className="media-placeholder">{verticalPlaceholder(item.vertical)}</div>
               )}
             </div>
 
