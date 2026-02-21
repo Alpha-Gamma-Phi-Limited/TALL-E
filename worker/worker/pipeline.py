@@ -29,7 +29,11 @@ class IngestionPipeline:
         try:
             pages = self.adapter.list_pages()
             for page in pages:
-                listings = self.adapter.parse_listing(page)
+                try:
+                    listings = self.adapter.parse_listing(page)
+                except Exception:
+                    run.items_failed += 1
+                    continue
                 for listing in listings:
                     run.items_total += 1
                     try:

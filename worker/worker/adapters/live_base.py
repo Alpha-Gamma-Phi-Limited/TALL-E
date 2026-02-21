@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
+import logging
 import re
 import time
 from dataclasses import dataclass
@@ -19,6 +21,18 @@ from worker.matching.normalization import normalize_identifier
 
 
 PRICE_RE = re.compile(r"(?<!\d)(\d{1,5}(?:[.,]\d{1,2})?)(?!\d)")
+RETRYABLE_HTTP_STATUSES = {408, 425, 429, 500, 502, 503, 504}
+RX_EXCLUSION_TOKENS = {
+    "prescription",
+    "pharmacist only",
+    "pharmacy only medicine",
+    "schedule 4",
+    "s4",
+    "rx",
+}
+PHARMA_ALLOWED_CATEGORIES = {"otc", "supplements"}
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -55,10 +69,14 @@ class LiveRetailerAdapter(SourceAdapter):
         max_products: int = 120,
         timeout_seconds: float = 15.0,
         request_delay_seconds: float = 0.0,
+        max_fetch_retries: int = 2,
+        retry_backoff_seconds: float = 0.6,
         use_fixture_fallback: bool = True,
     ) -> None:
         self.max_products = max_products
         self.request_delay_seconds = request_delay_seconds
+        self.max_fetch_retries = max(0, max_fetch_retries)
+        self.retry_backoff_seconds = max(0.0, retry_backoff_seconds)
         self.use_fixture_fallback = use_fixture_fallback
         self._page_cache: dict[str, ParsedProductPage] = {}
         self._last_request_at: float | None = None
@@ -91,7 +109,7 @@ class LiveRetailerAdapter(SourceAdapter):
         source_product_id = str(page["source_product_id"])
         parsed = self._parse_product_page(url=url, source_product_id=source_product_id)
         self._page_cache[source_product_id] = parsed
-        if self.vertical == "pharma" and parsed.category not in {"otc", "supplements"}:
+        if self.vertical == "pharma" and parsed.category not in PHARMA_ALLOWED_CATEGORIES:
             return []
 
         return [
@@ -128,7 +146,8 @@ class LiveRetailerAdapter(SourceAdapter):
 
         merged_attributes = dict(detail.attributes)
         if self.vertical == "pharma":
-            merged_attributes.update(self._derive_pharma_attributes(listing.title))
+            for key, value in self._derive_pharma_attributes(listing.title).items():
+                merged_attributes.setdefault(key, value)
         if model_number:
             merged_attributes.setdefault("model_number", model_number)
 
@@ -169,6 +188,7 @@ class LiveRetailerAdapter(SourceAdapter):
 
     def _discover_product_urls(self) -> list[str]:
         queue = [urljoin(self.base_url, seed) for seed in self.sitemap_seeds]
+        queue.extend(self._discover_robots_sitemaps())
         seen_sitemaps: set[str] = set()
         found: list[str] = []
 
@@ -179,8 +199,9 @@ class LiveRetailerAdapter(SourceAdapter):
             seen_sitemaps.add(sitemap_url)
 
             try:
-                xml_text = self._fetch_text(sitemap_url)
-            except Exception:
+                xml_text = self._fetch_sitemap_text(sitemap_url)
+            except Exception as exc:
+                logger.debug("Skipping sitemap %s for %s: %s", sitemap_url, self.retailer_slug, exc)
                 continue
 
             child_sitemaps, urls = self._parse_sitemap(xml_text)
@@ -202,9 +223,28 @@ class LiveRetailerAdapter(SourceAdapter):
                 break
         return deduped
 
+    def _discover_robots_sitemaps(self) -> list[str]:
+        robots_url = urljoin(self.base_url, "/robots.txt")
+        try:
+            robots_text = self._fetch_text(robots_url)
+        except Exception:
+            return []
+
+        discovered: list[str] = []
+        for line in robots_text.splitlines():
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            if key.strip().lower() != "sitemap":
+                continue
+            sitemap_url = value.strip()
+            if sitemap_url:
+                discovered.append(sitemap_url)
+        return discovered
+
     def _parse_sitemap(self, xml_text: str) -> tuple[list[str], list[str]]:
         try:
-            root = ElementTree.fromstring(xml_text)
+            root = ElementTree.fromstring(xml_text.lstrip())
         except ElementTree.ParseError:
             return [], []
 
@@ -263,10 +303,14 @@ class LiveRetailerAdapter(SourceAdapter):
             or self._extract_breadcrumb_category(soup)
             or "electronics"
         )
+        if self.vertical == "pharma" and self._contains_rx_exclusion(raw_category, title):
+            raise ValueError(f"Excluded prescription-like listing for {self.retailer_slug}: {url}")
         category = self._normalize_category(raw_category, title)
 
         availability = self._extract_availability(ld_product)
         price_nzd, promo_price_nzd = self._extract_prices(ld_product, soup)
+        if price_nzd <= 0:
+            raise ValueError(f"Unable to parse positive price for {self.retailer_slug}: {url}")
         discount_pct = self._discount_pct(price_nzd, promo_price_nzd)
         promo_text = "Promo" if promo_price_nzd is not None else None
 
@@ -536,6 +580,8 @@ class LiveRetailerAdapter(SourceAdapter):
     def _normalize_category(self, raw_category: str, title: str) -> str:
         text = f"{raw_category} {title}".lower()
         if self.vertical == "pharma":
+            if self._contains_rx_exclusion(raw_category, title):
+                return "excluded-rx"
             if any(token in text for token in ["vitamin", "supplement", "omega", "probiotic", "collagen", "magnesium"]):
                 return "supplements"
             if any(token in text for token in ["pain", "cold", "flu", "tablet", "capsule", "medicine", "paracetamol", "ibuprofen"]):
@@ -554,24 +600,32 @@ class LiveRetailerAdapter(SourceAdapter):
         lowered = title.lower()
         attributes: dict[str, object] = {}
 
-        strength_match = re.search(r"(\\d+(?:\\.\\d+)?)\\s*(mg|g|mcg|ml)", lowered)
+        strength_match = re.search(r"(\d+(?:\.\d+)?)\s*(mg|g|mcg|ml)", lowered)
         if strength_match:
             attributes["strength"] = f"{strength_match.group(1)}{strength_match.group(2)}"
 
-        pack_match = re.search(r"(\\d+)\\s*(pack|tablets|tablet|capsules|capsule|caplets|softgels)", lowered)
+        pack_match = re.search(r"(\d+)\s*(pack|tablets|tablet|capsules|capsule|caplets|softgels|sachets)", lowered)
         if pack_match:
             attributes["pack_size"] = int(pack_match.group(1))
 
         if "tablet" in lowered:
             attributes["form"] = "tablet"
+            attributes["dosage_unit"] = "tablet"
         elif "caplet" in lowered:
             attributes["form"] = "caplet"
+            attributes["dosage_unit"] = "caplet"
         elif "capsule" in lowered:
             attributes["form"] = "capsule"
+            attributes["dosage_unit"] = "capsule"
         elif "liquid" in lowered or "syrup" in lowered:
             attributes["form"] = "liquid"
+            attributes["dosage_unit"] = "ml"
 
         return attributes
+
+    def _contains_rx_exclusion(self, *values: str) -> bool:
+        text = " ".join(values).lower()
+        return any(token in text for token in RX_EXCLUSION_TOKENS)
 
     def _discount_pct(self, price: float, promo_price: float | None) -> float | None:
         if promo_price is None or promo_price <= 0 or price <= 0 or promo_price >= price:
@@ -585,15 +639,63 @@ class LiveRetailerAdapter(SourceAdapter):
         return f"{self.retailer_slug}-{digest}"
 
     def _fetch_text(self, url: str) -> str:
-        if self.request_delay_seconds > 0 and self._last_request_at is not None:
-            elapsed = time.time() - self._last_request_at
-            if elapsed < self.request_delay_seconds:
-                time.sleep(self.request_delay_seconds - elapsed)
-
-        response = self.client.get(url)
-        response.raise_for_status()
-        self._last_request_at = time.time()
+        response = self._request_with_retries(url)
         return response.text
+
+    def _fetch_sitemap_text(self, url: str) -> str:
+        response = self._request_with_retries(url)
+        content = response.content
+        lower_url = url.lower()
+        content_type = response.headers.get("content-type", "").lower()
+
+        if lower_url.endswith(".gz") or "gzip" in content_type or "application/x-gzip" in content_type:
+            try:
+                content = gzip.decompress(content)
+            except OSError:
+                logger.debug("Sitemap %s looked gzipped but could not be decompressed; using raw payload", url)
+
+        return content.decode(response.encoding or "utf-8", errors="replace")
+
+    def _request_with_retries(self, url: str) -> httpx.Response:
+        attempts = self.max_fetch_retries + 1
+        for attempt in range(attempts):
+            if self.request_delay_seconds > 0 and self._last_request_at is not None:
+                elapsed = time.time() - self._last_request_at
+                if elapsed < self.request_delay_seconds:
+                    time.sleep(self.request_delay_seconds - elapsed)
+
+            try:
+                response = self.client.get(url)
+                self._last_request_at = time.time()
+                if response.status_code in RETRYABLE_HTTP_STATUSES:
+                    raise httpx.HTTPStatusError(
+                        f"Retryable status {response.status_code} for {url}",
+                        request=response.request,
+                        response=response,
+                    )
+                response.raise_for_status()
+                return response
+            except (httpx.TimeoutException, httpx.NetworkError, httpx.HTTPStatusError) as exc:
+                if isinstance(exc, httpx.HTTPStatusError):
+                    status = exc.response.status_code if exc.response is not None else None
+                    if status not in RETRYABLE_HTTP_STATUSES:
+                        raise
+
+                if attempt >= attempts - 1:
+                    raise
+
+                backoff = self.retry_backoff_seconds * (2**attempt)
+                if backoff > 0:
+                    time.sleep(backoff)
+                logger.debug(
+                    "Retrying %s for %s after error (%s), attempt %s/%s",
+                    url,
+                    self.retailer_slug,
+                    exc,
+                    attempt + 1,
+                    attempts,
+                )
+        raise RuntimeError(f"Unreachable retry state for {url}")
 
     def _as_text(self, value: Any) -> str | None:
         if value is None:
