@@ -1,0 +1,25 @@
+{
+  "pet-food": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true },
+    { "key": "weight_kg", "label": "Weight (kg)", "type": "number", "filterable": true }
+  ],
+  "treats": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true },
+    { "key": "weight_g", "label": "Weight (g)", "type": "number", "filterable": true }
+  ],
+  "flea-tick": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true },
+    { "key": "pack_size", "label": "Pack Size", "type": "number", "filterable": true }
+  ],
+  "grooming": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true }
+  ],
+  "toys": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true },
+    { "key": "size", "label": "Size", "type": "string", "filterable": true }
+  ],
+  "bedding": [
+    { "key": "pet_type", "label": "Pet Type", "type": "string", "filterable": true },
+    { "key": "size", "label": "Size", "type": "string", "filterable": true }
+  ]
+}

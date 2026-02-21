@@ -1,0 +1,26 @@
+{
+  "fridges": {
+    "weights": {
+      "capacity_l": 0.40,
+      "energy_rating": 0.40,
+      "price_penalty": 0.20
+    },
+    "required": ["capacity_l"]
+  },
+  "washing-machines": {
+    "weights": {
+      "capacity_kg": 0.40,
+      "energy_rating": 0.40,
+      "price_penalty": 0.20
+    },
+    "required": ["capacity_kg"]
+  },
+  "dishwashers": {
+    "weights": {
+      "place_settings": 0.40,
+      "energy_rating": 0.40,
+      "price_penalty": 0.20
+    },
+    "required": ["place_settings"]
+  }
+}

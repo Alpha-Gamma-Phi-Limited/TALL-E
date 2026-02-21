@@ -1,0 +1,15 @@
+{
+  "protein": [
+    { "key": "servings", "label": "Servings", "type": "number", "filterable": true },
+    { "key": "weight_g", "label": "Weight (g)", "type": "number", "filterable": true },
+    { "key": "protein_per_serving_g", "label": "Protein per Serving (g)", "type": "number", "filterable": true }
+  ],
+  "pre-workout": [
+    { "key": "servings", "label": "Servings", "type": "number", "filterable": true },
+    { "key": "caffeine_mg", "label": "Caffeine (mg)", "type": "number", "filterable": true }
+  ],
+  "vitamins": [
+    { "key": "pack_size", "label": "Pack Size", "type": "number", "filterable": true },
+    { "key": "form", "label": "Form", "type": "string", "filterable": true }
+  ]
+}

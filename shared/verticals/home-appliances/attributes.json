@@ -1,0 +1,16 @@
+{
+  "fridges": [
+    { "key": "capacity_l", "label": "Capacity (L)", "type": "number", "filterable": true },
+    { "key": "energy_rating", "label": "Energy Rating", "type": "number", "filterable": true },
+    { "key": "type", "label": "Type", "type": "string", "filterable": true }
+  ],
+  "washing-machines": [
+    { "key": "capacity_kg", "label": "Capacity (kg)", "type": "number", "filterable": true },
+    { "key": "energy_rating", "label": "Energy Rating", "type": "number", "filterable": true },
+    { "key": "type", "label": "Type", "type": "string", "filterable": true }
+  ],
+  "dishwashers": [
+    { "key": "place_settings", "label": "Place Settings", "type": "number", "filterable": true },
+    { "key": "energy_rating", "label": "Energy Rating", "type": "number", "filterable": true }
+  ]
+}
