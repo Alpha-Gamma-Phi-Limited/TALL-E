@@ -11,7 +11,7 @@ from app.core.config import get_settings
 from app.models import Product, Retailer
 from app.schemas.meta import MetaOut
 
-VALID_VERTICALS = {"tech", "pharma"}
+VALID_VERTICALS = {"tech", "pharma", "beauty"}
 
 
 def _load_scoring_config(vertical: str | None) -> dict[str, object]:

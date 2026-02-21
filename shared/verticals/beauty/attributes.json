@@ -1,0 +1,4 @@
+{
+  "skincare": ["product_type", "size_ml", "skin_concern", "finish"],
+  "makeup": ["product_type", "size_ml", "finish", "shade"]
+}

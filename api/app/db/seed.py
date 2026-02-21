@@ -11,6 +11,9 @@ DEFAULT_RETAILERS = [
     ("chemist-warehouse", "Chemist Warehouse", "pharma"),
     ("bargain-chemist", "Bargain Chemist", "pharma"),
     ("life-pharmacy", "Life Pharmacy", "pharma"),
+    ("mecca", "Mecca", "beauty"),
+    ("sephora", "Sephora", "beauty"),
+    ("farmers-beauty", "Farmers Beauty", "beauty"),
 ]
 
 

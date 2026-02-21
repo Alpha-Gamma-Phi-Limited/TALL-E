@@ -7,7 +7,7 @@ from app.db.session import get_db
 from app.schemas.meta import MetaOut
 from app.services.meta import get_meta
 
-Vertical = Literal["tech", "pharma"]
+Vertical = Literal["tech", "pharma", "beauty"]
 
 router = APIRouter(prefix="/v2/meta", tags=["meta-v2"])
 

@@ -26,6 +26,9 @@ def session() -> Session:
     jb = db.query(Retailer).filter(Retailer.slug == "jb-hi-fi").one()
     cw = db.query(Retailer).filter(Retailer.slug == "chemist-warehouse").one()
     bc = db.query(Retailer).filter(Retailer.slug == "bargain-chemist").one()
+    mecca = db.query(Retailer).filter(Retailer.slug == "mecca").one()
+    sephora = db.query(Retailer).filter(Retailer.slug == "sephora").one()
+    farmers_beauty = db.query(Retailer).filter(Retailer.slug == "farmers-beauty").one()
 
     product = Product(
         canonical_name="Acer Nitro 16 Laptop",
@@ -53,6 +56,20 @@ def session() -> Session:
         searchable_text="panadol tablets 500mg 20 pack",
     )
     db.add(pharma_product)
+    db.flush()
+
+    beauty_product = Product(
+        canonical_name="The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+        vertical="beauty",
+        brand="The Ordinary",
+        category="skincare",
+        model_number="NIA-30ML",
+        gtin="769915190069",
+        mpn="ORD-NIA-30",
+        attributes={"product_type": "serum", "size_ml": 30, "skin_concern": "oil-control"},
+        searchable_text="the ordinary niacinamide zinc serum 30ml",
+    )
+    db.add(beauty_product)
     db.flush()
 
     rp1 = RetailerProduct(
@@ -101,6 +118,39 @@ def session() -> Session:
     db.add_all([rp3, rp4])
     db.flush()
 
+    rp5 = RetailerProduct(
+        retailer_id=mecca.id,
+        product_id=beauty_product.id,
+        source_product_id="mecca-1",
+        title="The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+        url="https://example.com/mecca/niacinamide-30",
+        image_url="https://example.com/mecca/niacinamide.jpg",
+        raw_attributes={"product_type": "serum", "size_ml": 30},
+        availability="in_stock",
+    )
+    rp6 = RetailerProduct(
+        retailer_id=sephora.id,
+        product_id=beauty_product.id,
+        source_product_id="sephora-1",
+        title="The Ordinary Niacinamide 10% + Zinc 1% Serum 30ml",
+        url="https://example.com/sephora/niacinamide-30",
+        image_url="https://example.com/sephora/niacinamide.jpg",
+        raw_attributes={"product_type": "serum", "size_ml": 30},
+        availability="in_stock",
+    )
+    rp7 = RetailerProduct(
+        retailer_id=farmers_beauty.id,
+        product_id=beauty_product.id,
+        source_product_id="farmers-beauty-1",
+        title="The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+        url="https://example.com/farmers/niacinamide-30",
+        image_url="https://example.com/farmers/niacinamide.jpg",
+        raw_attributes={"product_type": "serum", "size_ml": 30},
+        availability="in_stock",
+    )
+    db.add_all([rp5, rp6, rp7])
+    db.flush()
+
     db.add_all(
         [
             LatestPrice(
@@ -130,6 +180,30 @@ def session() -> Session:
             LatestPrice(
                 retailer_product_id=rp4.id,
                 price_nzd=Decimal("6.49"),
+                promo_price_nzd=None,
+                promo_text=None,
+                discount_pct=None,
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp5.id,
+                price_nzd=Decimal("14.00"),
+                promo_price_nzd=None,
+                promo_text=None,
+                discount_pct=None,
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp6.id,
+                price_nzd=Decimal("15.00"),
+                promo_price_nzd=Decimal("12.99"),
+                promo_text="Beauty Pass offer",
+                discount_pct=Decimal("13.40"),
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp7.id,
+                price_nzd=Decimal("13.99"),
                 promo_price_nzd=None,
                 promo_text=None,
                 discount_pct=None,

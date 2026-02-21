@@ -8,7 +8,7 @@ from app.schemas.products import ProductDetailOut, ProductsListOut
 from app.services.details import get_product_detail
 from app.services.search import ProductSearchParams, search_products
 
-Vertical = Literal["tech", "pharma"]
+Vertical = Literal["tech", "pharma", "beauty"]
 
 router = APIRouter(prefix="/v2/products", tags=["products-v2"])
 
@@ -32,7 +32,7 @@ def list_products_v2(
     if retailers:
         retailer_list = [item.strip() for item in retailers.split(",") if item.strip()]
 
-    effective_sort = sort or ("price_asc" if vertical == "pharma" else "value_desc")
+    effective_sort = sort or ("value_desc" if vertical == "tech" else "price_asc")
 
     params = ProductSearchParams(
         q=q,
