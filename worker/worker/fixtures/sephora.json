@@ -1,0 +1,49 @@
+{
+  "retailer": "sephora",
+  "items": [
+    {
+      "source_product_id": "seph-skin-811",
+      "title": "The Ordinary Niacinamide 10% + Zinc 1% Serum 30ml",
+      "url": "https://www.sephora.nz/products/seph-skin-811",
+      "image_url": "https://cdn.example.nz/sephora/niacinamide-30ml.jpg",
+      "category": "skincare",
+      "brand": "The Ordinary",
+      "availability": "in_stock",
+      "gtin": "769915190069",
+      "mpn": "ORD-NIA-30",
+      "model_number": "NIA-30ML",
+      "attributes": {
+        "product_type": "serum",
+        "size_ml": 30,
+        "skin_concern": "oil-control",
+        "finish": "natural"
+      },
+      "price_nzd": 15.0,
+      "promo_price_nzd": 12.99,
+      "promo_text": "Beauty Pass offer",
+      "discount_pct": 13.4
+    },
+    {
+      "source_product_id": "seph-makeup-336",
+      "title": "Fenty Beauty Gloss Bomb Universal Lip Luminizer 9ml",
+      "url": "https://www.sephora.nz/products/seph-makeup-336",
+      "image_url": "https://cdn.example.nz/sephora/gloss-bomb.jpg",
+      "category": "makeup",
+      "brand": "Fenty Beauty",
+      "availability": "in_stock",
+      "gtin": "840026646540",
+      "mpn": "FEN-GLS-FUZZY",
+      "model_number": "GLOSS-BOMB-9ML",
+      "attributes": {
+        "product_type": "lip-gloss",
+        "size_ml": 9,
+        "finish": "shimmer",
+        "shade": "fenty glow"
+      },
+      "price_nzd": 42.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

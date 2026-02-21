@@ -1,0 +1,49 @@
+{
+  "retailer": "mecca",
+  "items": [
+    {
+      "source_product_id": "mecca-skin-100",
+      "title": "The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+      "url": "https://www.meccabeauty.co.nz/product/mecca-skin-100",
+      "image_url": "https://cdn.example.nz/mecca/niacinamide-30ml.jpg",
+      "category": "skincare",
+      "brand": "The Ordinary",
+      "availability": "in_stock",
+      "gtin": "769915190069",
+      "mpn": "ORD-NIA-30",
+      "model_number": "NIA-30ML",
+      "attributes": {
+        "product_type": "serum",
+        "size_ml": 30,
+        "skin_concern": "oil-control",
+        "finish": "natural"
+      },
+      "price_nzd": 14.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "mecca-makeup-210",
+      "title": "Fenty Beauty Gloss Bomb Universal Lip Luminizer",
+      "url": "https://www.meccabeauty.co.nz/product/mecca-makeup-210",
+      "image_url": "https://cdn.example.nz/mecca/gloss-bomb.jpg",
+      "category": "makeup",
+      "brand": "Fenty Beauty",
+      "availability": "in_stock",
+      "gtin": "840026646540",
+      "mpn": "FEN-GLS-FUZZY",
+      "model_number": "GLOSS-BOMB-9ML",
+      "attributes": {
+        "product_type": "lip-gloss",
+        "size_ml": 9,
+        "finish": "shimmer",
+        "shade": "fenty glow"
+      },
+      "price_nzd": 41.0,
+      "promo_price_nzd": 36.9,
+      "promo_text": "Members save",
+      "discount_pct": 10.0
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "retailer": "farmers-beauty",
+  "items": [
+    {
+      "source_product_id": "farmers-beauty-1120",
+      "title": "The Ordinary Niacinamide 10% + Zinc 1% 30ml",
+      "url": "https://www.farmers.co.nz/beauty/product/farmers-beauty-1120",
+      "image_url": "https://cdn.example.nz/farmers/niacinamide-30ml.jpg",
+      "category": "skincare",
+      "brand": "The Ordinary",
+      "availability": "in_stock",
+      "gtin": "769915190069",
+      "mpn": "ORD-NIA-30",
+      "model_number": "NIA-30ML",
+      "attributes": {
+        "product_type": "serum",
+        "size_ml": 30,
+        "skin_concern": "oil-control",
+        "finish": "natural"
+      },
+      "price_nzd": 13.99,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "farmers-beauty-4415",
+      "title": "Fenty Beauty Gloss Bomb Universal Lip Luminizer",
+      "url": "https://www.farmers.co.nz/beauty/product/farmers-beauty-4415",
+      "image_url": "https://cdn.example.nz/farmers/gloss-bomb.jpg",
+      "category": "makeup",
+      "brand": "Fenty Beauty",
+      "availability": "in_stock",
+      "gtin": "840026646540",
+      "mpn": "FEN-GLS-FUZZY",
+      "model_number": "GLOSS-BOMB-9ML",
+      "attributes": {
+        "product_type": "lip-gloss",
+        "size_ml": 9,
+        "finish": "shimmer",
+        "shade": "fenty glow"
+      },
+      "price_nzd": 39.99,
+      "promo_price_nzd": 34.99,
+      "promo_text": "Farmers card deal",
+      "discount_pct": 12.5
+    }
+  ]
+}

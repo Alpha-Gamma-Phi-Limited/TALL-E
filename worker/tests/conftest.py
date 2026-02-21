@@ -20,6 +20,9 @@ def session() -> Session:
             Retailer(slug="chemist-warehouse", display_name="Chemist Warehouse", vertical="pharma", active=True),
             Retailer(slug="bargain-chemist", display_name="Bargain Chemist", vertical="pharma", active=True),
             Retailer(slug="life-pharmacy", display_name="Life Pharmacy", vertical="pharma", active=True),
+            Retailer(slug="mecca", display_name="Mecca", vertical="beauty", active=True),
+            Retailer(slug="sephora", display_name="Sephora", vertical="beauty", active=True),
+            Retailer(slug="farmers-beauty", display_name="Farmers Beauty", vertical="beauty", active=True),
         ]
     )
     db.commit()

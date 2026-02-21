@@ -5,11 +5,14 @@ from dataclasses import dataclass
 
 from worker.adapters.bargain_chemist import BargainChemistFixtureAdapter, BargainChemistLiveAdapter
 from worker.adapters.chemist_warehouse import ChemistWarehouseFixtureAdapter, ChemistWarehouseLiveAdapter
+from worker.adapters.farmers_beauty import FarmersBeautyFixtureAdapter, FarmersBeautyLiveAdapter
 from worker.adapters.harvey_norman import HarveyNormanFixtureAdapter, HarveyNormanLiveAdapter
 from worker.adapters.jb_hifi import JBHiFiFixtureAdapter, JBHiFiLiveAdapter
 from worker.adapters.life_pharmacy import LifePharmacyFixtureAdapter, LifePharmacyLiveAdapter
+from worker.adapters.mecca import MeccaFixtureAdapter, MeccaLiveAdapter
 from worker.adapters.noel_leeming import NoelLeemingFixtureAdapter, NoelLeemingLiveAdapter
 from worker.adapters.pb_tech import PBTechFixtureAdapter, PBTechLiveAdapter
+from worker.adapters.sephora import SephoraFixtureAdapter, SephoraLiveAdapter
 from worker.db import SessionLocal
 from worker.pipeline import IngestionPipeline
 
@@ -28,6 +31,9 @@ ADAPTERS: dict[str, AdapterRegistry] = {
     "chemist-warehouse": AdapterRegistry(fixture=ChemistWarehouseFixtureAdapter, live=ChemistWarehouseLiveAdapter),
     "bargain-chemist": AdapterRegistry(fixture=BargainChemistFixtureAdapter, live=BargainChemistLiveAdapter),
     "life-pharmacy": AdapterRegistry(fixture=LifePharmacyFixtureAdapter, live=LifePharmacyLiveAdapter),
+    "mecca": AdapterRegistry(fixture=MeccaFixtureAdapter, live=MeccaLiveAdapter),
+    "sephora": AdapterRegistry(fixture=SephoraFixtureAdapter, live=SephoraLiveAdapter),
+    "farmers-beauty": AdapterRegistry(fixture=FarmersBeautyFixtureAdapter, live=FarmersBeautyLiveAdapter),
 }
 
 
