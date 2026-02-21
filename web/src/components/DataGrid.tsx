@@ -16,7 +16,10 @@ export default function DataGrid({ items, selectedId, onSelect }: Props) {
   }
 
   const verticalPlaceholder = (vertical: string) => {
-    if (vertical === "pharma") return "PHARMA";
+    if (vertical === "pharmaceuticals") return "PHARMACEUTICALS";
+    if (vertical === "home-appliances") return "HOME";
+    if (vertical === "supplements") return "SUPPLEMENTS";
+    if (vertical === "pet-goods") return "PET GOODS";
     if (vertical === "beauty") return "BEAUTY";
     return "TECH";
   };
@@ -51,16 +54,24 @@ export default function DataGrid({ items, selectedId, onSelect }: Props) {
             </div>
 
             <div className="card-body">
+              <span className="card-brand">{item.brand}</span>
               <h3>{item.canonical_name}</h3>
-              <p>
-                {item.brand} · {item.category}
-              </p>
+              <p className="card-category">{item.category}</p>
             </div>
 
             <div className="card-foot">
-              <strong>{effective ? money.format(effective) : "Price unavailable"}</strong>
-              <span>{offer?.retailer ?? "No current offer"}</span>
-              <small>{item.value_score !== null ? `Value score: ${item.value_score.toFixed(2)}` : "Price-first ranking"}</small>
+              <div className="price-box">
+                <strong>{effective ? money.format(effective) : "Price unavailable"}</strong>
+                {offer?.promo_price_nzd && (
+                  <span className="was-price-tag">Was {money.format(offer.price_nzd)}</span>
+                )}
+              </div>
+              <div className="offer-meta">
+                <span className="retailer-name">{offer?.retailer ?? "No current offer"}</span>
+                <span className="value-tag">
+                  {item.value_score !== null ? `Score: ${item.value_score.toFixed(1)}` : "Unranked"}
+                </span>
+              </div>
             </div>
           </article>
         );

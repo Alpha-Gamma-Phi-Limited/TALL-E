@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-export type Vertical = "tech" | "pharma" | "beauty";
+export type Vertical = "tech" | "pharmaceuticals" | "beauty" | "home-appliances" | "supplements" | "pet-goods";
 
 export type ProductFilters = {
   vertical: Vertical;
@@ -29,13 +29,19 @@ const DEFAULTS: ProductFilters = {
 
 const DEFAULT_SORT_BY_VERTICAL: Record<Vertical, string> = {
   tech: "value_desc",
-  pharma: "price_asc",
+  "home-appliances": "value_desc",
+  supplements: "value_desc",
+  "pet-goods": "price_asc",
+  pharmaceuticals: "price_asc",
   beauty: "price_asc",
 };
 
 function parseVertical(value: string | null): Vertical {
-  if (value === "pharma") return "pharma";
+  if (value === "pharmaceuticals") return "pharmaceuticals";
   if (value === "beauty") return "beauty";
+  if (value === "home-appliances") return "home-appliances";
+  if (value === "supplements") return "supplements";
+  if (value === "pet-goods") return "pet-goods";
   return "tech";
 }
 
@@ -80,6 +86,10 @@ export function useProductSearchParams() {
       patch.retailers !== undefined
     ) {
       next.set("page", "1");
+    }
+
+    if (next.toString() === searchParams.toString()) {
+      return;
     }
 
     setSearchParams(next);

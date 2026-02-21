@@ -1,5 +1,3 @@
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-
 import { MetaResponse } from "../api/client";
 import { ProductFilters } from "../hooks/useProductSearchParams";
 
@@ -28,25 +26,8 @@ export default function CommandBar({ filters, setFilters, total, meta }: Props) 
     setFilters({ retailers: Array.from(next).join(",") });
   };
 
-  const searchPlaceholder =
-    filters.vertical === "pharma"
-      ? "Search by product name, ingredient, strength"
-      : filters.vertical === "beauty"
-        ? "Search by product name, brand, skin concern"
-        : "Search by product name, model, GTIN";
-
   return (
     <section className="controls-wrap">
-      <div className="search-control">
-        <MagnifyingGlassIcon width={18} height={18} />
-        <input
-          value={filters.q}
-          onChange={(e) => setFilters({ q: e.target.value })}
-          placeholder={searchPlaceholder}
-          aria-label="Search products"
-        />
-      </div>
-
       <div className="control-row">
         <label>
           Category
@@ -75,7 +56,9 @@ export default function CommandBar({ filters, setFilters, total, meta }: Props) 
         <label>
           Sort
           <select value={filters.sort} onChange={(e) => setFilters({ sort: e.target.value })}>
-            {filters.vertical === "tech" && <option value="value_desc">Best Value</option>}
+            {(filters.vertical === "tech" || filters.vertical === "home-appliances" || filters.vertical === "supplements") && (
+              <option value="value_desc">Best Value</option>
+            )}
             <option value="price_asc">Price Low to High</option>
             <option value="price_desc">Price High to Low</option>
             <option value="discount_desc">Biggest Discount</option>
@@ -105,8 +88,6 @@ export default function CommandBar({ filters, setFilters, total, meta }: Props) 
           );
         })}
       </div>
-
-      <div className="result-pill">{total.toLocaleString()} results</div>
     </section>
   );
 }
