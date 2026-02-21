@@ -314,9 +314,10 @@ select {
 }
 
 .vertical-tab.is-active {
-  border-color: #bdd4f2;
-  background: var(--accent-soft);
-  color: var(--accent);
+  border-color: var(--border-strong);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(179, 179, 179, 0.28);
 }
 
 .landing-shell .vertical-subbar {
@@ -333,9 +334,10 @@ select {
 }
 
 .landing-shell .vertical-tab.is-active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--panel);
+  color: var(--text);
+  border-color: var(--border-strong);
+  box-shadow: 0 2px 8px rgba(179, 179, 179, 0.28);
 }
 
 .landing-shell .vertical-tab:hover:not(.is-active, :disabled) {
