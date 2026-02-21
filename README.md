@@ -1,6 +1,6 @@
 # WorthIt (TALL-E)
 
-Multi-vertical price intelligence platform for NZ retail, currently supporting technology and pharmacy.
+Multi-vertical price intelligence platform for NZ retail, currently supporting technology, pharmacy, and beauty.
 
 ## Stack
 
@@ -52,9 +52,9 @@ cd web && npm install && cd ..
 - `GET /v1/products`
 - `GET /v1/products/{id}`
 - `GET /v1/meta`
-- `GET /v2/products?vertical=tech|pharma`
-- `GET /v2/products/{id}?vertical=tech|pharma`
-- `GET /v2/meta?vertical=tech|pharma`
+- `GET /v2/products?vertical=tech|pharma|beauty`
+- `GET /v2/products/{id}?vertical=tech|pharma|beauty`
+- `GET /v2/meta?vertical=tech|pharma|beauty`
 - `POST /v1/admin/reconcile` (requires `X-Admin-Token`)
 - `GET /v1/admin/ingestion-runs` (requires `X-Admin-Token`)
 - `GET /health`
@@ -91,6 +91,9 @@ Retailer options:
 - `chemist-warehouse`
 - `bargain-chemist`
 - `life-pharmacy`
+- `mecca`
+- `sephora`
+- `farmers-beauty`
 
 ### Web
 
