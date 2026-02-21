@@ -20,3 +20,19 @@ class NoelLeemingLiveAdapter(LiveRetailerAdapter):
     exclude_url_patterns = ["/stores", "/services", "/help", "?", "#"]
     require_file_suffix = ".html"
     fallback_fixture_cls = NoelLeemingFixtureAdapter
+
+
+class NoelLeemingHomeFixtureAdapter(FixtureAdapter):
+    vertical = "home-appliances"
+    retailer_slug = "noel-leeming"
+    fixture_name = "noel_leeming_home.json"
+
+
+class NoelLeemingHomeLiveAdapter(NoelLeemingLiveAdapter):
+    vertical = "home-appliances"
+    include_url_patterns = [
+        "/c/whiteware",
+        "/c/kitchen-appliances",
+        "/c/household-appliances",
+    ]
+    fallback_fixture_cls = NoelLeemingHomeFixtureAdapter

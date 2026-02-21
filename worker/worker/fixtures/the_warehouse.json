@@ -1,0 +1,23 @@
+{
+  "retailer": "the-warehouse",
+  "items": [
+    {
+      "source_product_id": "tw-tech-1",
+      "title": "JBL Flip 6 Portable Waterproof Speaker - Black",
+      "url": "https://www.thewarehouse.co.nz/p/tw-tech-1",
+      "image_url": "https://cdn.example.nz/tw/jbl-flip6.jpg",
+      "category": "electronics",
+      "brand": "JBL",
+      "availability": "in_stock",
+      "gtin": "050036382657",
+      "mpn": "JBLFLIP6BLK",
+      "model_number": "Flip 6",
+      "attributes": {},
+      "price_nzd": 179.0,
+      "promo_price_nzd": 149.0,
+      "promo_text": "Clearance",
+      "discount_pct": 16.7,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

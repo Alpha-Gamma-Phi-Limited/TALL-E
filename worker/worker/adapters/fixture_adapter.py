@@ -32,6 +32,7 @@ class FixtureAdapter(SourceAdapter):
                     category=str(item["category"]),
                     brand=str(item["brand"]),
                     availability=item.get("availability"),
+                    category_source="fixture",
                 )
             )
         return listings
@@ -85,4 +86,6 @@ class FixtureAdapter(SourceAdapter):
             promo_text=detail.promo_text,
             discount_pct=detail.discount_pct,
             captured_at=detail.captured_at,
+            vertical_source="fixture_default",
+            vertical_confidence=0.65,
         )

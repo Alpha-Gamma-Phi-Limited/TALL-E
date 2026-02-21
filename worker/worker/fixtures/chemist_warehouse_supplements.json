@@ -1,0 +1,26 @@
+{
+  "retailer": "chemist-warehouse",
+  "items": [
+    {
+      "source_product_id": "cw-supp-1",
+      "title": "GO Healthy GO Magnesium 800mg 120 Capsules",
+      "url": "https://www.chemistwarehouse.co.nz/buy/cw-supp-1",
+      "image_url": "https://cdn.example.nz/cw/go-mag.jpg",
+      "category": "vitamins",
+      "brand": "GO Healthy",
+      "availability": "in_stock",
+      "gtin": "9421025569456",
+      "mpn": "GOMAG120",
+      "model_number": "Magnesium 800mg",
+      "attributes": {
+        "pack_size": 120,
+        "form": "capsule"
+      },
+      "price_nzd": 39.99,
+      "promo_price_nzd": 24.99,
+      "promo_text": "Half Price",
+      "discount_pct": 37.5,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

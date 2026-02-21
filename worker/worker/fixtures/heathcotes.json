@@ -1,0 +1,23 @@
+{
+  "retailer": "heathcotes",
+  "items": [
+    {
+      "source_product_id": "hc-tech-1",
+      "title": "Sony 65 Inch X90L 4K Full Array LED TV",
+      "url": "https://www.heathcotes.co.nz/products/hc-tech-1",
+      "image_url": "https://cdn.example.nz/hc/sony-tv.jpg",
+      "category": "electronics",
+      "brand": "Sony",
+      "availability": "in_stock",
+      "gtin": "4548736148383",
+      "mpn": "XR65X90L",
+      "model_number": "XR65X90L",
+      "attributes": {},
+      "price_nzd": 2499.0,
+      "promo_price_nzd": 1999.0,
+      "promo_text": "Special",
+      "discount_pct": 20.0,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

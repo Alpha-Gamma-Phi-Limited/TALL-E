@@ -5,8 +5,11 @@ from worker.adapters.bargain_chemist import BargainChemistFixtureAdapter
 from worker.adapters.base import NormalizedRetailerProduct, RawDetail, RawListing, SourceAdapter
 from worker.adapters.farmers_beauty import FarmersBeautyFixtureAdapter
 from worker.adapters.mecca import MeccaFixtureAdapter
+from worker.adapters.pet_co_nz import PetCoNzFixtureAdapter
+from worker.adapters.petdirect import PetdirectFixtureAdapter
 from worker.adapters.pb_tech import PBTechFixtureAdapter
 from worker.adapters.sephora import SephoraFixtureAdapter
+from worker.adapters.animates import AnimatesFixtureAdapter
 from worker.pipeline import IngestionPipeline
 from worker.models import LatestPrice, Product, RetailerProduct
 
@@ -38,7 +41,7 @@ def test_pipeline_ingests_pharma_fixture(session):
 
     assert run.status == "completed"
     assert run.items_total > 0
-    product = session.query(Product).filter(Product.vertical == "pharma").first()
+    product = session.query(Product).filter(Product.vertical == "pharmaceuticals").first()
     assert product is not None
 
 
@@ -69,6 +72,36 @@ def test_pipeline_ingests_farmers_beauty_fixture(session):
     assert run.status == "completed"
     assert run.items_total > 0
     product = session.query(Product).filter(Product.vertical == "beauty", Product.brand == "Fenty Beauty").first()
+    assert product is not None
+
+
+def test_pipeline_ingests_animates_pet_goods_fixture(session):
+    pipeline = IngestionPipeline(session, AnimatesFixtureAdapter())
+    run = pipeline.run()
+
+    assert run.status == "completed"
+    assert run.items_total > 0
+    product = session.query(Product).filter(Product.vertical == "pet-goods", Product.brand == "Royal Canin").first()
+    assert product is not None
+
+
+def test_pipeline_ingests_petdirect_pet_goods_fixture(session):
+    pipeline = IngestionPipeline(session, PetdirectFixtureAdapter())
+    run = pipeline.run()
+
+    assert run.status == "completed"
+    assert run.items_total > 0
+    product = session.query(Product).filter(Product.vertical == "pet-goods", Product.brand == "Hills").first()
+    assert product is not None
+
+
+def test_pipeline_ingests_pet_co_nz_pet_goods_fixture(session):
+    pipeline = IngestionPipeline(session, PetCoNzFixtureAdapter())
+    run = pipeline.run()
+
+    assert run.status == "completed"
+    assert run.items_total > 0
+    product = session.query(Product).filter(Product.vertical == "pet-goods", Product.brand == "Ziwi Peak").first()
     assert product is not None
 
 
@@ -178,3 +211,43 @@ def test_pipeline_merges_product_metadata_for_search(session):
     assert existing.attributes["memory"] == "16GB"
     assert "MBA13M4" in existing.searchable_text
     assert "512GB" in existing.searchable_text
+
+
+def _normalized_vertical_sample(vertical: str, source: str, confidence: float) -> NormalizedRetailerProduct:
+    return NormalizedRetailerProduct(
+        vertical=vertical,
+        source_product_id="sample-1",
+        title="Sample Product",
+        url="https://example.com/sample-1",
+        image_url=None,
+        canonical_name="Sample Product",
+        brand="Sample",
+        category="electronics",
+        model_number=None,
+        gtin=None,
+        mpn=None,
+        attributes={},
+        raw_attributes={},
+        availability="in_stock",
+        price_nzd=10.0,
+        promo_price_nzd=None,
+        promo_text=None,
+        discount_pct=None,
+        captured_at=datetime.now(timezone.utc),
+        vertical_source=source,
+        vertical_confidence=confidence,
+    )
+
+
+def test_vertical_transition_requires_high_confidence(session):
+    pipeline = IngestionPipeline(session, PBTechFixtureAdapter())
+    normalized = _normalized_vertical_sample(vertical="home-appliances", source="fallback", confidence=0.72)
+
+    assert pipeline._should_transition_vertical("tech", normalized) is False
+
+
+def test_vertical_transition_accepts_strong_structured_signal(session):
+    pipeline = IngestionPipeline(session, PBTechFixtureAdapter())
+    normalized = _normalized_vertical_sample(vertical="home-appliances", source="json_ld", confidence=0.96)
+
+    assert pipeline._should_transition_vertical("tech", normalized) is True

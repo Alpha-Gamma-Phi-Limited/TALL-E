@@ -1,0 +1,45 @@
+{
+  "retailer": "pet-co-nz",
+  "items": [
+    {
+      "source_product_id": "petco-treats-001",
+      "title": "Ziwi Peak Air-Dried Beef Dog Treats 85g",
+      "url": "https://pet.co.nz/products/ziwi-peak-beef-dog-treats-85g",
+      "image_url": "https://cdn.example.nz/petco/ziwi-beef-treats-85g.jpg",
+      "category": "treats",
+      "brand": "Ziwi Peak",
+      "availability": "in_stock",
+      "gtin": "9421016594021",
+      "mpn": "ZIWI-BEEF-TREATS-85",
+      "model_number": "ZIWI-AIRDRIED-85G",
+      "attributes": {
+        "pet_type": "dog",
+        "weight_g": 85
+      },
+      "price_nzd": 17.99,
+      "promo_price_nzd": 15.99,
+      "promo_text": "Online special",
+      "discount_pct": 11.12
+    },
+    {
+      "source_product_id": "petco-bedding-001",
+      "title": "Rosewood Plush Pet Bed Medium",
+      "url": "https://pet.co.nz/products/rosewood-plush-bed-medium",
+      "image_url": "https://cdn.example.nz/petco/rosewood-bed-medium.jpg",
+      "category": "bedding",
+      "brand": "Rosewood",
+      "availability": "in_stock",
+      "gtin": "5025659023059",
+      "mpn": "ROSEWOOD-BED-M",
+      "model_number": "PLUSH-BED-MEDIUM",
+      "attributes": {
+        "pet_type": "dog",
+        "size": "medium"
+      },
+      "price_nzd": 49.99,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

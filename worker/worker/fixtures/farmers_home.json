@@ -1,0 +1,27 @@
+{
+  "retailer": "farmers",
+  "items": [
+    {
+      "source_product_id": "farmers-home-1",
+      "title": "Fisher & Paykel 8.5kg Front Load Washing Machine",
+      "url": "https://www.farmers.co.nz/home/product/farmers-home-1",
+      "image_url": "https://cdn.example.nz/farmers/fp-washer.jpg",
+      "category": "washing-machines",
+      "brand": "Fisher & Paykel",
+      "availability": "in_stock",
+      "gtin": "9415112925208",
+      "mpn": "WH8560P3",
+      "model_number": "WH8560P3",
+      "attributes": {
+        "capacity_kg": 8.5,
+        "energy_rating": 4.5,
+        "type": "front-loader"
+      },
+      "price_nzd": 1299.0,
+      "promo_price_nzd": 1099.0,
+      "promo_text": "Save $200",
+      "discount_pct": 15.4,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

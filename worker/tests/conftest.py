@@ -23,7 +23,11 @@ def session() -> Session:
             Retailer(slug="life-pharmacy", display_name="Life Pharmacy", vertical="pharma", active=True),
             Retailer(slug="mecca", display_name="Mecca", vertical="beauty", active=True),
             Retailer(slug="sephora", display_name="Sephora", vertical="beauty", active=True),
-            Retailer(slug="farmers-beauty", display_name="Farmers Beauty", vertical="beauty", active=True),
+            Retailer(slug="farmers", display_name="Farmers", vertical="home-appliances", active=True),
+            Retailer(slug="supplements-co-nz", display_name="Supplements.co.nz", vertical="supplements", active=True),
+            Retailer(slug="animates", display_name="Animates", vertical="pet-goods", active=True),
+            Retailer(slug="petdirect", display_name="Petdirect", vertical="pet-goods", active=True),
+            Retailer(slug="pet-co-nz", display_name="Pet.co.nz", vertical="pet-goods", active=True),
         ]
     )
     db.commit()

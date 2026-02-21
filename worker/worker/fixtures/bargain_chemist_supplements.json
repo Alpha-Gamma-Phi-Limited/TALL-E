@@ -1,0 +1,27 @@
+{
+  "retailer": "bargain-chemist",
+  "items": [
+    {
+      "source_product_id": "bc-supp-1",
+      "title": "Musashi High Protein 2kg Chocolate",
+      "url": "https://www.bargainchemist.co.nz/products/bc-supp-1",
+      "image_url": "https://cdn.example.nz/bc/musashi.jpg",
+      "category": "protein",
+      "brand": "Musashi",
+      "availability": "in_stock",
+      "gtin": "9316400108124",
+      "mpn": "MUS-PRO-2KG",
+      "model_number": "High Protein",
+      "attributes": {
+        "protein_per_serving_g": 30,
+        "servings": 44,
+        "weight_g": 2000
+      },
+      "price_nzd": 109.0,
+      "promo_price_nzd": 89.0,
+      "promo_text": "Price Drop",
+      "discount_pct": 18.3,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

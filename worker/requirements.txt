@@ -4,3 +4,4 @@ rapidfuzz==3.11.0
 psycopg[binary]==3.2.4
 httpx==0.28.1
 beautifulsoup4==4.13.3
+playwright==1.51.0

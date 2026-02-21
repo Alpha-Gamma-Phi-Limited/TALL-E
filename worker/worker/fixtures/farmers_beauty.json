@@ -1,10 +1,10 @@
 {
-  "retailer": "farmers-beauty",
+  "retailer": "farmers",
   "items": [
     {
-      "source_product_id": "farmers-beauty-1120",
+      "source_product_id": "farmers-1120",
       "title": "The Ordinary Niacinamide 10% + Zinc 1% 30ml",
-      "url": "https://www.farmers.co.nz/beauty/product/farmers-beauty-1120",
+      "url": "https://www.farmers.co.nz/beauty/product/farmers-1120",
       "image_url": "https://cdn.example.nz/farmers/niacinamide-30ml.jpg",
       "category": "skincare",
       "brand": "The Ordinary",
@@ -21,29 +21,30 @@
       "price_nzd": 13.99,
       "promo_price_nzd": null,
       "promo_text": null,
-      "discount_pct": null
+      "discount_pct": null,
+      "captured_at": "2024-03-20T10:00:00Z"
     },
     {
-      "source_product_id": "farmers-beauty-4415",
+      "source_product_id": "farmers-4415",
       "title": "Fenty Beauty Gloss Bomb Universal Lip Luminizer",
-      "url": "https://www.farmers.co.nz/beauty/product/farmers-beauty-4415",
-      "image_url": "https://cdn.example.nz/farmers/gloss-bomb.jpg",
+      "url": "https://www.farmers.co.nz/beauty/product/farmers-4415",
+      "image_url": "https://cdn.example.nz/farmers/fenty-gloss.jpg",
       "category": "makeup",
       "brand": "Fenty Beauty",
       "availability": "in_stock",
-      "gtin": "840026646540",
-      "mpn": "FEN-GLS-FUZZY",
-      "model_number": "GLOSS-BOMB-9ML",
+      "gtin": "816136021435",
+      "mpn": "FENTY-GLOSS-01",
+      "model_number": "GLOSS-BOMB",
       "attributes": {
-        "product_type": "lip-gloss",
-        "size_ml": 9,
-        "finish": "shimmer",
-        "shade": "fenty glow"
+        "product_type": "lip_gloss",
+        "shade": "Fenty Glow",
+        "finish": "radiant"
       },
-      "price_nzd": 39.99,
-      "promo_price_nzd": 34.99,
-      "promo_text": "Farmers card deal",
-      "discount_pct": 12.5
+      "price_nzd": 45.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null,
+      "captured_at": "2024-03-20T10:00:00Z"
     }
   ]
 }

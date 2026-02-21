@@ -39,8 +39,107 @@ PHARMA_ALLOWED_CATEGORIES = {"otc", "supplements"}
 VERTICAL_FALLBACK_CATEGORIES = {
     "beauty": "beauty",
     "pharma": "other-pharma",
+    "pharmaceuticals": "other-pharma",
     "tech": "electronics",
+    "home-appliances": "appliances",
+    "pet-goods": "pet-supplies",
 }
+VERTICAL_SIGNAL_TOKENS: dict[str, tuple[str, ...]] = {
+    "home-appliances": (
+        "whiteware",
+        "appliance",
+        "fridge",
+        "refrigerator",
+        "freezer",
+        "dishwasher",
+        "washing machine",
+        "washer",
+        "dryer",
+        "laundry",
+        "microwave",
+        "vacuum",
+        "air fryer",
+        "coffee machine",
+        "air conditioner",
+        "dehumidifier",
+    ),
+    "beauty": (
+        "beauty",
+        "skincare",
+        "skin care",
+        "makeup",
+        "cosmetic",
+        "fragrance",
+        "perfume",
+        "parfum",
+        "lipstick",
+        "mascara",
+        "serum",
+        "cleanser",
+        "moisturizer",
+        "moisturiser",
+        "sunscreen",
+        "spf",
+        "shampoo",
+    ),
+    "pet-goods": (
+        "pet",
+        "kitten",
+        "puppy",
+        "pet food",
+        "dog food",
+        "cat food",
+        "kibble",
+        "litter",
+        "flea",
+        "tick",
+        "worming",
+        "grooming",
+        "pet shampoo",
+        "pet treats",
+        "dog treats",
+        "cat treats",
+        "pet toy",
+        "dog toy",
+        "cat toy",
+        "pet bed",
+    ),
+    "pharma": (
+        "pharma",
+        "pharmacy",
+        "medicine",
+        "medication",
+        "tablet",
+        "caplet",
+        "capsule",
+        "otc",
+        "supplement",
+        "vitamin",
+        "probiotic",
+        "pain relief",
+        "ibuprofen",
+        "paracetamol",
+    ),
+    "tech": (
+        "electronics",
+        "electronic",
+        "laptop",
+        "notebook",
+        "macbook",
+        "smartphone",
+        "iphone",
+        "android",
+        "monitor",
+        "gaming",
+        "camera",
+        "headphone",
+        "printer",
+        "router",
+        "ssd",
+        "gpu",
+    ),
+}
+VERTICAL_SIGNAL_PRIORITY = ("home-appliances", "beauty", "pet-goods", "pharma", "tech")
 BEAUTY_CATEGORY_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "suncare",
@@ -185,6 +284,13 @@ IMAGE_EXCLUDE_TOKENS = {
     "arrow",
 }
 IMAGE_INCLUDE_TOKENS = {"product", "hero", "main", "gallery", "/product/", "/products/", "/media/pi/", "/pi/"}
+MISSING_PAGE_MARKERS = (
+    "we can't find this page",
+    "page not found",
+    "404",
+    "error 404",
+    "sorry, this page cannot be found",
+)
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +312,19 @@ class ParsedProductPage:
     promo_price_nzd: float | None
     promo_text: str | None
     discount_pct: float | None
+    normalized_category: str = ""
+    category_source: str = "fallback"
+
+
+@dataclass(frozen=True)
+class VerticalInference:
+    vertical: str
+    source: str
+    confidence: float
+
+
+class NonProductPageError(ValueError):
+    pass
 
 
 class LiveRetailerAdapter(SourceAdapter):
@@ -226,12 +345,26 @@ class LiveRetailerAdapter(SourceAdapter):
         max_fetch_retries: int = 2,
         retry_backoff_seconds: float = 0.6,
         use_fixture_fallback: bool = True,
+        proxy_url: str | None = None,
+        browser_fallback: bool = False,
+        browser_timeout_seconds: float = 30.0,
+        browser_proxy_url: str | None = None,
+        vertical: str | None = None,
+        include_url_patterns: list[str] | None = None,
     ) -> None:
         self.max_products = max_products
         self.request_delay_seconds = request_delay_seconds
         self.max_fetch_retries = max(0, max_fetch_retries)
         self.retry_backoff_seconds = max(0.0, retry_backoff_seconds)
         self.use_fixture_fallback = use_fixture_fallback
+        self.proxy_url = proxy_url
+        self.browser_fallback = browser_fallback
+        self.browser_timeout_seconds = max(5.0, browser_timeout_seconds)
+        self.browser_proxy_url = browser_proxy_url
+        if vertical:
+            self.vertical = vertical
+        if include_url_patterns:
+            self.include_url_patterns = include_url_patterns
         self.used_fixture_fallback = False
         self.discovery_failure_reason: str | None = None
         self._page_cache: dict[str, ParsedProductPage] = {}
@@ -245,6 +378,7 @@ class LiveRetailerAdapter(SourceAdapter):
                 )
             },
             follow_redirects=True,
+            proxy=proxy_url,
         )
         self._fixture_fallback = self.fallback_fixture_cls() if (use_fixture_fallback and self.fallback_fixture_cls) else None
 
@@ -269,13 +403,16 @@ class LiveRetailerAdapter(SourceAdapter):
         raise RuntimeError(f"No product URLs discovered for {self.retailer_slug}{reason}")
 
     def _probe_live_urls(self, urls: list[str]) -> tuple[bool, str | None]:
-        sample_urls = urls[: min(3, len(urls))]
+        max_probe_count = min(len(urls), 15)
+        sample_urls = urls[:max_probe_count]
         if not sample_urls:
             return False, "no live product URLs discovered"
 
         success = 0
         blocked = 0
         price_failures = 0
+        parse_failures = 0
+        successful_urls: list[str] = []
 
         for url in sample_urls:
             try:
@@ -283,6 +420,10 @@ class LiveRetailerAdapter(SourceAdapter):
             except httpx.HTTPStatusError as exc:
                 status = exc.response.status_code if exc.response is not None else None
                 if status in WAF_BLOCKED_STATUSES:
+                    blocked += 1
+                continue
+            except RuntimeError as exc:
+                if "anti-bot challenge" in str(exc).lower():
                     blocked += 1
                 continue
             except Exception:
@@ -293,6 +434,10 @@ class LiveRetailerAdapter(SourceAdapter):
                 continue
 
             soup = BeautifulSoup(html, "html.parser")
+            if self._looks_like_missing_page(soup):
+                parse_failures += 1
+                continue
+
             ld_product = self._extract_json_ld_product(soup)
             price_nzd, _ = self._extract_prices(ld_product, soup)
             if price_nzd <= 0:
@@ -300,14 +445,34 @@ class LiveRetailerAdapter(SourceAdapter):
                 continue
 
             success += 1
+            successful_urls.append(url)
+            if success >= 2:
+                break
 
         if success > 0:
+            self._prioritize_urls(urls, successful_urls)
             return True, None
         if blocked > 0:
             return False, "live product pages blocked by anti-bot/WAF"
         if price_failures > 0:
             return False, "live product pages reachable but price extraction failed"
+        if parse_failures > 0:
+            return False, "live product pages resolved to non-product/error pages"
         return False, "live product pages were not parseable"
+
+    def _prioritize_urls(self, urls: list[str], preferred_urls: list[str]) -> None:
+        preferred = [url for url in preferred_urls if url in urls]
+        if not preferred:
+            return
+        remainder = [url for url in urls if url not in preferred]
+        urls[:] = [*preferred, *remainder]
+
+    def _is_pharma_vertical(self) -> bool:
+        return self._is_pharma_vertical_name(self.vertical)
+
+    @staticmethod
+    def _is_pharma_vertical_name(vertical: str) -> bool:
+        return vertical in {"pharma", "pharmaceuticals"}
 
     def parse_listing(self, page: dict[str, object]) -> list[RawListing]:
         if "items" in page and self._fixture_fallback:
@@ -315,9 +480,13 @@ class LiveRetailerAdapter(SourceAdapter):
 
         url = str(page["url"])
         source_product_id = str(page["source_product_id"])
-        parsed = self._parse_product_page(url=url, source_product_id=source_product_id)
+        try:
+            parsed = self._parse_product_page(url=url, source_product_id=source_product_id)
+        except NonProductPageError:
+            return []
         self._page_cache[source_product_id] = parsed
-        if self.vertical == "pharma" and parsed.category not in PHARMA_ALLOWED_CATEGORIES:
+        parsed_category = parsed.normalized_category or self._normalize_category(parsed.category, parsed.title, self.vertical)
+        if self._is_pharma_vertical() and parsed_category not in PHARMA_ALLOWED_CATEGORIES:
             return []
 
         return [
@@ -329,6 +498,7 @@ class LiveRetailerAdapter(SourceAdapter):
                 category=parsed.category,
                 brand=parsed.brand,
                 availability=parsed.availability,
+                category_source=parsed.category_source,
             )
         ]
 
@@ -349,29 +519,33 @@ class LiveRetailerAdapter(SourceAdapter):
         return self._to_raw_detail(parsed)
 
     def normalize(self, listing: RawListing, detail: RawDetail) -> NormalizedRetailerProduct:
+        vertical_inference = self._infer_vertical(listing, detail)
         model_number = normalize_identifier(detail.model_number)
         gtin = normalize_identifier(detail.gtin)
         mpn = normalize_identifier(detail.mpn)
 
         merged_attributes = dict(detail.attributes)
-        if self.vertical == "pharma":
+        if self._is_pharma_vertical_name(vertical_inference.vertical):
             for key, value in self._derive_pharma_attributes(listing.title).items():
                 merged_attributes.setdefault(key, value)
-        if self.vertical == "beauty":
+        if vertical_inference.vertical == "beauty":
             for key, value in self._derive_beauty_attributes(listing.title, listing.category, merged_attributes).items():
+                merged_attributes.setdefault(key, value)
+        if vertical_inference.vertical == "home-appliances":
+            for key, value in self._derive_home_appliances_attributes(listing.title, merged_attributes).items():
                 merged_attributes.setdefault(key, value)
         if model_number:
             merged_attributes.setdefault("model_number", model_number)
 
         return NormalizedRetailerProduct(
-            vertical=self.vertical,
+            vertical=vertical_inference.vertical,
             source_product_id=listing.source_product_id,
             title=listing.title.strip(),
             url=listing.url,
             image_url=listing.image_url,
             canonical_name=listing.title.strip(),
             brand=listing.brand.strip(),
-            category=self._normalize_category(listing.category, listing.title),
+            category=self._normalize_category(listing.category, listing.title, vertical_inference.vertical),
             model_number=model_number,
             gtin=gtin,
             mpn=mpn,
@@ -383,7 +557,66 @@ class LiveRetailerAdapter(SourceAdapter):
             promo_text=detail.promo_text,
             discount_pct=detail.discount_pct,
             captured_at=detail.captured_at,
+            vertical_source=vertical_inference.source,
+            vertical_confidence=vertical_inference.confidence,
         )
+
+    def _infer_vertical(self, listing: RawListing, detail: RawDetail) -> VerticalInference:
+        category_signal = self._infer_vertical_from_text(listing.category)
+        if category_signal:
+            category_source = listing.category_source or "structured_category"
+            if category_source in {"json_ld", "breadcrumb", "structured_category"}:
+                confidence = 0.96
+            elif category_source == "fallback":
+                confidence = 0.72
+            else:
+                confidence = 0.86
+            return VerticalInference(vertical=category_signal, source=category_source, confidence=confidence)
+
+        url_signal = self._infer_vertical_from_text(urlparse(listing.url).path.replace("-", " ").replace("/", " "))
+        if url_signal:
+            return VerticalInference(vertical=url_signal, source="url_path", confidence=0.88)
+
+        attribute_text = self._attributes_to_text(detail.attributes)
+        title_signal = self._infer_vertical_from_text(f"{listing.title} {attribute_text}")
+        if title_signal:
+            return VerticalInference(vertical=title_signal, source="title_attributes", confidence=0.8)
+
+        return VerticalInference(vertical=self.vertical, source="adapter_default", confidence=0.55)
+
+    def _infer_vertical_from_text(self, text: str) -> str | None:
+        if not text:
+            return None
+        lowered = text.lower()
+        scores = {vertical: 0 for vertical in VERTICAL_SIGNAL_TOKENS}
+        for vertical, tokens in VERTICAL_SIGNAL_TOKENS.items():
+            for token in tokens:
+                if token in lowered:
+                    scores[vertical] += 1
+
+        best_vertical = None
+        best_score = 0
+        for vertical in VERTICAL_SIGNAL_PRIORITY:
+            score = scores.get(vertical, 0)
+            if score > best_score:
+                best_vertical = vertical
+                best_score = score
+
+        if best_score <= 0:
+            return None
+        return best_vertical
+
+    def _attributes_to_text(self, attributes: dict[str, object]) -> str:
+        chunks: list[str] = []
+        for key, value in (attributes or {}).items():
+            chunks.append(str(key))
+            if isinstance(value, dict):
+                chunks.extend(str(child_value) for child_value in value.values())
+            elif isinstance(value, (list, tuple, set)):
+                chunks.extend(str(item) for item in value)
+            else:
+                chunks.append(str(value))
+        return " ".join(chunks)
 
     def _to_raw_detail(self, parsed: ParsedProductPage) -> RawDetail:
         return RawDetail(
@@ -437,12 +670,13 @@ class LiveRetailerAdapter(SourceAdapter):
 
         deduped: list[str] = []
         seen_urls: set[str] = set()
+        discovery_pool_limit = max(self.max_products, 40)
         for url in found:
             if url in seen_urls:
                 continue
             seen_urls.add(url)
             deduped.append(url)
-            if len(deduped) >= self.max_products:
+            if len(deduped) >= discovery_pool_limit:
                 break
         if deduped:
             return deduped
@@ -524,17 +758,18 @@ class LiveRetailerAdapter(SourceAdapter):
             soup = BeautifulSoup(html, "html.parser")
             for anchor in soup.find_all("a", href=True):
                 href = anchor.get("href") or ""
-                absolute = self._canonicalize_url(urljoin(self.base_url, href))
-                if not absolute:
+                absolute_raw = urljoin(self.base_url, href)
+                absolute = self._canonicalize_url(absolute_raw)
+                if not absolute_raw or not absolute:
                     continue
 
-                if self._is_candidate_product_url(absolute):
+                if self._is_candidate_product_url(absolute_raw):
                     if absolute not in seen_products:
                         discovered.append(absolute)
                         seen_products.add(absolute)
                         if len(discovered) >= self.max_products:
                             break
-                elif self._is_internal_browse_url(absolute):
+                elif self._is_internal_browse_url(absolute_raw):
                     if absolute not in crawled and absolute not in crawl_queue:
                         crawl_queue.append(absolute)
 
@@ -544,7 +779,10 @@ class LiveRetailerAdapter(SourceAdapter):
         parsed = urlparse(url)
         if not parsed.scheme.startswith("http"):
             return False
-        normalized = f"{parsed.scheme}://{parsed.netloc}{parsed.path}".lower()
+        base_host = urlparse(self.base_url).netloc.lower()
+        if parsed.netloc.lower() != base_host:
+            return False
+        normalized = parsed.geturl().lower()
         path = parsed.path.lower()
 
         if any(excluded in normalized for excluded in self.exclude_url_patterns):
@@ -609,14 +847,22 @@ class LiveRetailerAdapter(SourceAdapter):
             or title.split(" ")[0]
         )
 
-        raw_category = (
-            self._as_text(ld_product.get("category"))
-            or self._extract_breadcrumb_category(soup)
-            or self._default_category_for_vertical()
-        )
-        if self.vertical == "pharma" and self._contains_rx_exclusion(raw_category, title):
+        ld_category = self._as_text(ld_product.get("category"))
+        breadcrumb_category = self._extract_breadcrumb_category(soup)
+        if ld_category:
+            raw_category = ld_category
+            category_source = "json_ld"
+        elif breadcrumb_category:
+            raw_category = breadcrumb_category
+            category_source = "breadcrumb"
+        else:
+            raw_category = self._default_category_for_vertical(self.vertical)
+            category_source = "fallback"
+        if self._is_pharma_vertical() and self._contains_rx_exclusion(raw_category, title):
             raise ValueError(f"Excluded prescription-like listing for {self.retailer_slug}: {url}")
-        category = self._normalize_category(raw_category, title)
+        if self._is_non_product_page(url=url, title=title, soup=soup, product_obj=ld_product):
+            raise NonProductPageError(f"Non-product page for {self.retailer_slug}: {url}")
+        category = self._normalize_category(raw_category, title, self.vertical)
 
         availability = self._extract_availability(ld_product)
         price_nzd, promo_price_nzd = self._extract_prices(ld_product, soup, title=title)
@@ -642,7 +888,7 @@ class LiveRetailerAdapter(SourceAdapter):
             title=title.strip(),
             image_url=image_url,
             brand=brand.strip(),
-            category=category,
+            category=raw_category.strip(),
             availability=availability,
             gtin=gtin,
             mpn=mpn,
@@ -652,6 +898,8 @@ class LiveRetailerAdapter(SourceAdapter):
             promo_price_nzd=promo_price_nzd,
             promo_text=promo_text,
             discount_pct=discount_pct,
+            normalized_category=category,
+            category_source=category_source,
         )
 
     def _extract_json_ld_product(self, soup: BeautifulSoup) -> dict[str, Any]:
@@ -703,6 +951,14 @@ class LiveRetailerAdapter(SourceAdapter):
         if not node:
             return None
         return self._as_text(node.get("content"))
+
+    def _extract_meta_contents(self, soup: BeautifulSoup, attr: str, key: str) -> list[str]:
+        values: list[str] = []
+        for node in soup.find_all("meta", attrs={attr: key}):
+            content = self._as_text(node.get("content"))
+            if content:
+                values.append(content)
+        return values
 
     def _extract_brand(self, product_obj: dict[str, Any]) -> str | None:
         brand = product_obj.get("brand")
@@ -777,13 +1033,19 @@ class LiveRetailerAdapter(SourceAdapter):
         elif isinstance(image, dict):
             image = image.get("url")
 
+        meta_image_candidates = [
+            *self._extract_meta_contents(soup, "property", "og:image"),
+            *self._extract_meta_contents(soup, "name", "og:image"),
+            *self._extract_meta_contents(soup, "name", "twitter:image"),
+            *self._extract_meta_contents(soup, "name", "twitter:image:src"),
+            *self._extract_meta_contents(soup, "itemprop", "image"),
+        ]
+
+        preferred_meta_image = next((value for value in meta_image_candidates if self._clean_image_url(value)), None)
+
         image_url = (
             self._as_text(image)
-            or self._extract_meta_content(soup, "property", "og:image")
-            or self._extract_meta_content(soup, "name", "og:image")
-            or self._extract_meta_content(soup, "name", "twitter:image")
-            or self._extract_meta_content(soup, "name", "twitter:image:src")
-            or self._extract_meta_content(soup, "itemprop", "image")
+            or preferred_meta_image
             or self._extract_image_from_img_tags(soup, title=title)
             or self._extract_image_from_scripts(soup)
         )
@@ -1006,14 +1268,9 @@ class LiveRetailerAdapter(SourceAdapter):
         attributes: dict[str, object] = {}
 
         additional = product_obj.get("additionalProperty")
-        if isinstance(additional, list):
-            for item in additional:
-                if not isinstance(item, dict):
-                    continue
-                name = self._as_text(item.get("name"))
-                value = item.get("value")
-                if name and value is not None:
-                    attributes[self._normalize_attr_key(name)] = self._normalize_attr_value(value)
+        for name, value in self._iter_additional_properties(additional):
+            if name and value is not None:
+                attributes[self._normalize_attr_key(name)] = self._normalize_attr_value(value)
 
         if "model" in product_obj and product_obj.get("model"):
             attributes.setdefault("model", self._as_text(product_obj.get("model")))
@@ -1033,6 +1290,9 @@ class LiveRetailerAdapter(SourceAdapter):
         ingredients = self._extract_ingredients(product_obj, soup)
         if ingredients:
             attributes.setdefault("ingredients", ingredients)
+
+        for key, value in self._extract_spec_attributes_from_html(soup).items():
+            attributes.setdefault(key, value)
 
         description = attributes.get("description")
         if not description:
@@ -1056,6 +1316,72 @@ class LiveRetailerAdapter(SourceAdapter):
             if self._is_non_empty_attr_value(value):
                 cleaned[key] = value
         return cleaned
+
+    def _iter_additional_properties(self, additional: Any) -> list[tuple[str, Any]]:
+        if additional is None:
+            return []
+        if isinstance(additional, dict):
+            additional = [additional]
+        if not isinstance(additional, list):
+            return []
+
+        pairs: list[tuple[str, Any]] = []
+        for item in additional:
+            if not isinstance(item, dict):
+                continue
+            name = self._as_text(item.get("name"))
+            value = item.get("value")
+            if name and value is not None:
+                pairs.append((name, value))
+                continue
+
+            # Some implementations use key/value property maps.
+            for raw_key, raw_value in item.items():
+                if raw_key in {"@type", "name", "value", "unitCode", "unitText"}:
+                    continue
+                key_text = self._as_text(raw_key)
+                if key_text and raw_value is not None:
+                    pairs.append((key_text, raw_value))
+        return pairs
+
+    def _extract_spec_attributes_from_html(self, soup: BeautifulSoup) -> dict[str, object]:
+        attributes: dict[str, object] = {}
+
+        # Capture structured "specification" rows commonly used by ecommerce templates.
+        for row in soup.select("table tr")[:220]:
+            cells = row.find_all(["th", "td"])
+            if len(cells) < 2:
+                continue
+            key = self._as_text(cells[0].get_text(" ", strip=True))
+            value = self._as_text(cells[1].get_text(" ", strip=True))
+            if not key or not value:
+                continue
+            if len(value) > 260:
+                continue
+            normalized_key = self._normalize_attr_key(key)
+            if normalized_key in {"", "price", "quantity", "qty"}:
+                continue
+            attributes.setdefault(normalized_key, self._normalize_attr_value(value))
+            if len(attributes) >= 60:
+                return attributes
+
+        for definition_list in soup.find_all("dl")[:16]:
+            for term in definition_list.find_all("dt")[:80]:
+                key = self._as_text(term.get_text(" ", strip=True))
+                value_node = term.find_next_sibling("dd")
+                value = self._as_text(value_node.get_text(" ", strip=True)) if value_node else None
+                if not key or not value:
+                    continue
+                if len(value) > 260:
+                    continue
+                normalized_key = self._normalize_attr_key(key)
+                if normalized_key in {"", "price", "quantity", "qty"}:
+                    continue
+                attributes.setdefault(normalized_key, self._normalize_attr_value(value))
+                if len(attributes) >= 60:
+                    return attributes
+
+        return attributes
 
     def _normalize_attr_key(self, raw_key: str) -> str:
         key = raw_key.strip().lower()
@@ -1095,9 +1421,10 @@ class LiveRetailerAdapter(SourceAdapter):
         if numeric is not None:
             bucket.append(numeric)
 
-    def _normalize_category(self, raw_category: str, title: str) -> str:
+    def _normalize_category(self, raw_category: str, title: str, vertical: str | None = None) -> str:
+        target_vertical = vertical or self.vertical
         text = f"{raw_category} {title}".lower()
-        if self.vertical == "pharma":
+        if self._is_pharma_vertical_name(target_vertical):
             if self._contains_rx_exclusion(raw_category, title):
                 return "excluded-rx"
             if any(token in text for token in ["vitamin", "supplement", "omega", "probiotic", "collagen", "magnesium"]):
@@ -1105,11 +1432,45 @@ class LiveRetailerAdapter(SourceAdapter):
             if any(token in text for token in ["pain", "cold", "flu", "tablet", "capsule", "medicine", "paracetamol", "ibuprofen"]):
                 return "otc"
             return "other-pharma"
-        if self.vertical == "beauty":
+        if target_vertical == "beauty":
             for category, tokens in BEAUTY_CATEGORY_RULES:
                 if any(token in text for token in tokens):
                     return category
             return "beauty"
+        if target_vertical == "home-appliances":
+            if any(token in text for token in ["fridge", "refrigerator", "freezer"]):
+                return "fridges"
+            if any(token in text for token in ["washing machine", "washer", "dryer", "laundry"]):
+                return "washing-machines"
+            if any(token in text for token in ["dishwasher"]):
+                return "dishwashers"
+            return "appliances"
+        if target_vertical == "pet-goods":
+            if any(
+                token in text
+                for token in [
+                    "dog food",
+                    "cat food",
+                    "pet food",
+                    "kibble",
+                    "dry food",
+                    "wet food",
+                    "puppy food",
+                    "kitten food",
+                ]
+            ):
+                return "pet-food"
+            if any(token in text for token in ["treat", "chew", "jerky", "biscuit"]):
+                return "treats"
+            if any(token in text for token in ["flea", "tick", "worm", "deworm", "parasite"]):
+                return "flea-tick"
+            if any(token in text for token in ["groom", "pet shampoo", "pet conditioner", "brush", "comb", "deodoriser"]):
+                return "grooming"
+            if any(token in text for token in ["pet toy", "dog toy", "cat toy", "teaser", "rope toy", "plush toy", "ball"]):
+                return "toys"
+            if any(token in text for token in ["pet bed", "bedding", "crate mat", "blanket"]):
+                return "bedding"
+            return "pet-supplies"
 
         if any(token in text for token in ["laptop", "notebook", "macbook", "ultrabook"]):
             return "laptops"
@@ -1119,8 +1480,28 @@ class LiveRetailerAdapter(SourceAdapter):
             return "monitors"
         return "electronics"
 
-    def _default_category_for_vertical(self) -> str:
-        return VERTICAL_FALLBACK_CATEGORIES.get(self.vertical, "other")
+    def _default_category_for_vertical(self, vertical: str | None = None) -> str:
+        target_vertical = vertical or self.vertical
+        return VERTICAL_FALLBACK_CATEGORIES.get(target_vertical, "other")
+
+    def _derive_home_appliances_attributes(self, title: str, existing_attributes: dict[str, object]) -> dict[str, object]:
+        text = title.lower()
+        attributes: dict[str, object] = {}
+
+        # Basic attribute extraction from title for home appliances
+        capacity_l_match = re.search(r"(\d+(?:\.\d+)?)\s*l\b", text)
+        if capacity_l_match:
+            attributes["capacity_l"] = float(capacity_l_match.group(1))
+
+        capacity_kg_match = re.search(r"(\d+(?:\.\d+)?)\s*kg\b", text)
+        if capacity_kg_match:
+            attributes["capacity_kg"] = float(capacity_kg_match.group(1))
+
+        energy_rating_match = re.search(r"(\d+(?:\.\d+)?)\s*star\b", text)
+        if energy_rating_match:
+            attributes["energy_rating"] = float(energy_rating_match.group(1))
+
+        return attributes
 
     def _derive_beauty_attributes(
         self, title: str, raw_category: str, existing_attributes: dict[str, object] | None = None
@@ -1256,14 +1637,40 @@ class LiveRetailerAdapter(SourceAdapter):
         lowered = html.lower()
         challenge_markers = [
             "<title>just a moment",
-            "_incapsula_resource",
             "/cdn-cgi/challenge-platform",
             "cf-challenge",
             "verifying your connection",
             "challenge-form",
             "please enable javascript and cookies",
         ]
-        return any(marker in lowered for marker in challenge_markers)
+        if any(marker in lowered for marker in challenge_markers):
+            return True
+
+        # Incapsula script can exist on normal pages. Treat explicit block shells as challenges.
+        if "_incapsula_resource" in lowered or "incapsula" in lowered:
+            shell_markers = [
+                'meta name="robots" content="noindex, nofollow"',
+                'meta name="robots" content="noindex,nofollow"',
+                'id="main-iframe"',
+                "swudnsai=",
+                "xinfo=",
+            ]
+            if any(marker in lowered for marker in shell_markers):
+                return True
+            blocked_phrases = ["request unsuccessful", "incident id", "access denied", "blocked"]
+            if any(phrase in lowered for phrase in blocked_phrases):
+                return True
+        return False
+
+    def _looks_like_missing_page(self, soup: BeautifulSoup) -> bool:
+        title_text = self._as_text(soup.title.string if soup.title else None) or ""
+        heading_text = " ".join(node.get_text(" ", strip=True) for node in soup.find_all(["h1", "h2"], limit=3))
+        body_text = f"{title_text} {heading_text}".lower()
+        return any(marker in body_text for marker in MISSING_PAGE_MARKERS)
+
+    def _is_non_product_page(self, url: str, title: str, soup: BeautifulSoup, product_obj: dict[str, Any]) -> bool:
+        _ = (url, title, product_obj)
+        return self._looks_like_missing_page(soup)
 
     def _discount_pct(self, price: float, promo_price: float | None) -> float | None:
         if promo_price is None or promo_price <= 0 or price <= 0 or promo_price >= price:

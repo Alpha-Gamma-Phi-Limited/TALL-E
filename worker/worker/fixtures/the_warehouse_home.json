@@ -1,0 +1,23 @@
+{
+  "retailer": "the-warehouse",
+  "items": [
+    {
+      "source_product_id": "tw-home-1",
+      "title": "Midea 20L Microwave White",
+      "url": "https://www.thewarehouse.co.nz/p/tw-home-1",
+      "image_url": "https://cdn.example.nz/tw/midea-microwave.jpg",
+      "category": "appliances",
+      "brand": "Midea",
+      "availability": "in_stock",
+      "gtin": "6944271653456",
+      "mpn": "AM720W",
+      "model_number": "AM720W",
+      "attributes": {},
+      "price_nzd": 119.0,
+      "promo_price_nzd": 99.0,
+      "promo_text": "Price Drop",
+      "discount_pct": 16.8,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

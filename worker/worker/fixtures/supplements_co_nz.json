@@ -1,0 +1,27 @@
+{
+  "retailer": "supplements-co-nz",
+  "items": [
+    {
+      "source_product_id": "on-whey-5lb",
+      "title": "Optimum Nutrition Gold Standard 100% Whey 5lb",
+      "url": "https://www.supplements.co.nz/products/on-whey-5lb",
+      "image_url": "https://cdn.example.nz/supps/on-whey.jpg",
+      "category": "protein",
+      "brand": "Optimum Nutrition",
+      "availability": "in_stock",
+      "gtin": "748927028669",
+      "mpn": "ON-WHEY-5",
+      "model_number": "Gold Standard Whey",
+      "attributes": {
+        "protein_per_serving_g": 24,
+        "servings": 71,
+        "weight_g": 2270
+      },
+      "price_nzd": 149.0,
+      "promo_price_nzd": 129.0,
+      "promo_text": "Hot Deal",
+      "discount_pct": 13.4,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

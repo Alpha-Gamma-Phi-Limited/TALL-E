@@ -107,6 +107,14 @@ class IngestionPipeline:
             if normalized.category and (not product.category or product.category.lower() in {"unknown", "other"}):
                 product.category = normalized.category
 
+            # Prevent low-confidence vertical flapping; only transition when evidence is strong.
+            if (
+                normalized.vertical
+                and product.vertical != normalized.vertical
+                and self._should_transition_vertical(product.vertical, normalized)
+            ):
+                product.vertical = normalized.vertical
+
             merged_attributes = self._merge_attributes(product.attributes, normalized.attributes)
             merged_attributes = self._merge_attributes(merged_attributes, normalized.raw_attributes)
             product.attributes = merged_attributes
@@ -247,3 +255,26 @@ class IngestionPipeline:
                 continue
             tokens.append(str(value))
         return tokens
+
+    def _should_transition_vertical(self, current_vertical: str, normalized) -> bool:
+        if self._same_vertical_family(current_vertical, normalized.vertical):
+            return False
+
+        confidence = float(getattr(normalized, "vertical_confidence", 0.0) or 0.0)
+        source = str(getattr(normalized, "vertical_source", "") or "").lower()
+
+        if confidence >= 0.93:
+            return True
+        if source in {"json_ld", "breadcrumb", "structured_category"} and confidence >= 0.88:
+            return True
+        return False
+
+    @staticmethod
+    def _same_vertical_family(left: str | None, right: str | None) -> bool:
+        def _canonical(value: str | None) -> str:
+            lowered = str(value or "").strip().lower()
+            if lowered in {"pharma", "pharmaceuticals"}:
+                return "pharma"
+            return lowered
+
+        return bool(left and right and _canonical(left) == _canonical(right))

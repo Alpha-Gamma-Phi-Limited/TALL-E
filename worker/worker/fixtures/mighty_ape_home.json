@@ -1,0 +1,23 @@
+{
+  "retailer": "mighty-ape",
+  "items": [
+    {
+      "source_product_id": "ma-home-1",
+      "title": "Breville the Barista Express Coffee Machine",
+      "url": "https://www.mightyape.co.nz/product/ma-home-1",
+      "image_url": "https://cdn.example.nz/ma/breville.jpg",
+      "category": "appliances",
+      "brand": "Breville",
+      "availability": "in_stock",
+      "gtin": "9312432021570",
+      "mpn": "BES870BSS",
+      "model_number": "BES870BSS",
+      "attributes": {},
+      "price_nzd": 999.0,
+      "promo_price_nzd": 749.0,
+      "promo_text": "Daily Deal",
+      "discount_pct": 25.0,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

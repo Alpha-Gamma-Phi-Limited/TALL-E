@@ -14,6 +14,7 @@ class RawListing:
     category: str
     brand: str
     availability: str | None
+    category_source: str | None = None
 
 
 @dataclass
@@ -50,6 +51,8 @@ class NormalizedRetailerProduct:
     promo_text: str | None
     discount_pct: float | None
     captured_at: datetime
+    vertical_source: str = "adapter_default"
+    vertical_confidence: float = 0.5
 
 
 class SourceAdapter(ABC):

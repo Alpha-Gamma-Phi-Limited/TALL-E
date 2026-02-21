@@ -70,10 +70,10 @@ def test_fuzzy_match(session):
     assert match.tier == "fuzzy"
 
 
-def test_pharma_variant_mismatch_creates_new(session):
+def test_pharmaceuticals_variant_mismatch_creates_new(session):
     product = Product(
         canonical_name="Panadol Tablets 500mg 20 Pack",
-        vertical="pharma",
+        vertical="pharmaceuticals",
         brand="Panadol",
         category="otc",
         gtin="9300673830010",
@@ -84,7 +84,7 @@ def test_pharma_variant_mismatch_creates_new(session):
     session.commit()
 
     item = _item(
-        vertical="pharma",
+        vertical="pharmaceuticals",
         canonical_name="Panadol Caplets 500mg 24 Pack",
         brand="Panadol",
         category="otc",

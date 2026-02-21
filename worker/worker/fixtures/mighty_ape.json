@@ -1,0 +1,23 @@
+{
+  "retailer": "mighty-ape",
+  "items": [
+    {
+      "source_product_id": "ma-tech-1",
+      "title": "Logitech MX Master 3S Wireless Mouse",
+      "url": "https://www.mightyape.co.nz/product/ma-tech-1",
+      "image_url": "https://cdn.example.nz/ma/mx-master.jpg",
+      "category": "electronics",
+      "brand": "Logitech",
+      "availability": "in_stock",
+      "gtin": "097855172280",
+      "mpn": "910-006561",
+      "model_number": "MX Master 3S",
+      "attributes": {},
+      "price_nzd": 169.0,
+      "promo_price_nzd": 149.0,
+      "promo_text": "Sale",
+      "discount_pct": 11.8,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

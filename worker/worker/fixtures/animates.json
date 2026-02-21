@@ -1,0 +1,45 @@
+{
+  "retailer": "animates",
+  "items": [
+    {
+      "source_product_id": "animates-dog-food-001",
+      "title": "Royal Canin Maxi Adult Dry Dog Food 15kg",
+      "url": "https://www.animates.co.nz/products/royal-canin-maxi-adult-15kg",
+      "image_url": "https://cdn.example.nz/animates/royal-canin-maxi-15kg.jpg",
+      "category": "pet-food",
+      "brand": "Royal Canin",
+      "availability": "in_stock",
+      "gtin": "3182550402219",
+      "mpn": "RC-MAXI-15",
+      "model_number": "MAXI-ADULT-15KG",
+      "attributes": {
+        "pet_type": "dog",
+        "weight_kg": 15
+      },
+      "price_nzd": 179.99,
+      "promo_price_nzd": 159.99,
+      "promo_text": "Club price",
+      "discount_pct": 11.11
+    },
+    {
+      "source_product_id": "animates-flea-001",
+      "title": "Bravecto Spot On Dog 10-20kg 3 Pack",
+      "url": "https://www.animates.co.nz/products/bravecto-spot-on-10-20kg",
+      "image_url": "https://cdn.example.nz/animates/bravecto-10-20kg.jpg",
+      "category": "flea-tick",
+      "brand": "Bravecto",
+      "availability": "in_stock",
+      "gtin": "9322839026853",
+      "mpn": "BRV-SPOT-10-20",
+      "model_number": "BRAVECTO-10-20",
+      "attributes": {
+        "pet_type": "dog",
+        "pack_size": 3
+      },
+      "price_nzd": 84.99,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

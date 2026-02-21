@@ -1,0 +1,45 @@
+{
+  "retailer": "petdirect",
+  "items": [
+    {
+      "source_product_id": "petdirect-cat-food-001",
+      "title": "Hills Science Diet Adult Indoor Cat Food 3kg",
+      "url": "https://petdirect.co.nz/products/hills-indoor-cat-food-3kg",
+      "image_url": "https://cdn.example.nz/petdirect/hills-indoor-3kg.jpg",
+      "category": "pet-food",
+      "brand": "Hills",
+      "availability": "in_stock",
+      "gtin": "052742003475",
+      "mpn": "HILLS-INDOOR-3KG",
+      "model_number": "SCIENCE-DIET-INDOOR-3KG",
+      "attributes": {
+        "pet_type": "cat",
+        "weight_kg": 3
+      },
+      "price_nzd": 59.99,
+      "promo_price_nzd": 51.99,
+      "promo_text": "Auto-ship save",
+      "discount_pct": 13.33
+    },
+    {
+      "source_product_id": "petdirect-toy-001",
+      "title": "KONG Classic Dog Toy Medium",
+      "url": "https://petdirect.co.nz/products/kong-classic-medium",
+      "image_url": "https://cdn.example.nz/petdirect/kong-medium.jpg",
+      "category": "toys",
+      "brand": "KONG",
+      "availability": "in_stock",
+      "gtin": "035585111139",
+      "mpn": "KONG-MEDIUM",
+      "model_number": "KONG-CLASSIC-M",
+      "attributes": {
+        "pet_type": "dog",
+        "size": "medium"
+      },
+      "price_nzd": 18.99,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

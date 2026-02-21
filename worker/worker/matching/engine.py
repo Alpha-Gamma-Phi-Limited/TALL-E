@@ -28,7 +28,7 @@ class MatchingEngine:
             candidate = self.db.execute(
                 select(Product).where(and_(Product.gtin == gtin, Product.vertical == item.vertical))
             ).scalar_one_or_none()
-            if candidate and self._pharma_variant_compatible(item, candidate):
+            if candidate and self._pharmaceuticals_variant_compatible(item, candidate):
                 return MatchResult(product_id=candidate.id, tier="gtin", score=1.0)
 
         normalized_model = normalize_identifier(item.mpn) or normalize_identifier(item.model_number)
@@ -42,7 +42,7 @@ class MatchingEngine:
                     )
                 )
             ).scalar_one_or_none()
-            if candidate and self._pharma_variant_compatible(item, candidate):
+            if candidate and self._pharmaceuticals_variant_compatible(item, candidate):
                 return MatchResult(product_id=candidate.id, tier="model", score=0.98)
 
         if retailer_product_id:
@@ -68,7 +68,7 @@ class MatchingEngine:
         best_id: str | None = None
         best_score = 0.0
         for candidate in candidates:
-            if not self._pharma_variant_compatible(item, candidate):
+            if not self._pharmaceuticals_variant_compatible(item, candidate):
                 continue
             attr_matches = self._attribute_overlap(item.attributes, candidate.attributes)
             if attr_matches < 2:
@@ -82,7 +82,7 @@ class MatchingEngine:
                 best_id = candidate.id
                 best_score = score
 
-        if best_id and best_score >= 0.82:
+        if best_id and best_score >= 0.75:
             return MatchResult(product_id=best_id, tier="fuzzy", score=best_score)
 
         return MatchResult(product_id=None, tier="new", score=best_score)
@@ -94,8 +94,8 @@ class MatchingEngine:
         normalized = normalize_text(str(value)).replace(" ", "")
         return normalized or None
 
-    def _pharma_variant_compatible(self, item: NormalizedRetailerProduct, candidate: Product) -> bool:
-        if item.vertical != "pharma":
+    def _pharmaceuticals_variant_compatible(self, item: NormalizedRetailerProduct, candidate: Product) -> bool:
+        if item.vertical not in {"pharma", "pharmaceuticals"}:
             return True
 
         for key in ("strength", "form", "pack_size"):

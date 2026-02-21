@@ -1,0 +1,27 @@
+{
+  "retailer": "noel-leeming",
+  "items": [
+    {
+      "source_product_id": "nl-home-1",
+      "title": "LG 9kg Heat Pump Dryer",
+      "url": "https://www.noelleeming.co.nz/p/nl-home-1",
+      "image_url": "https://cdn.example.nz/nl/lg-dryer.jpg",
+      "category": "washing-machines",
+      "brand": "LG",
+      "availability": "in_stock",
+      "gtin": "8806091216555",
+      "mpn": "DVH9-09W",
+      "model_number": "DVH9-09W",
+      "attributes": {
+        "capacity_kg": 9.0,
+        "energy_rating": 9.0,
+        "type": "heat-pump"
+      },
+      "price_nzd": 1899.0,
+      "promo_price_nzd": 1699.0,
+      "promo_text": "Save",
+      "discount_pct": 10.5,
+      "captured_at": "2024-03-20T10:00:00Z"
+    }
+  ]
+}

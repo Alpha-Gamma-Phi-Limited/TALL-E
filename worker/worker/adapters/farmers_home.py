@@ -2,14 +2,14 @@ from worker.adapters.fixture_adapter import FixtureAdapter
 from worker.adapters.live_base import LiveRetailerAdapter
 
 
-class FarmersBeautyFixtureAdapter(FixtureAdapter):
-    vertical = "beauty"
+class FarmersHomeFixtureAdapter(FixtureAdapter):
+    vertical = "home-appliances"
     retailer_slug = "farmers"
-    fixture_name = "farmers_beauty.json"
+    fixture_name = "farmers_home.json"
 
 
-class FarmersBeautyLiveAdapter(LiveRetailerAdapter):
-    vertical = "beauty"
+class FarmersHomeLiveAdapter(LiveRetailerAdapter):
+    vertical = "home-appliances"
     retailer_slug = "farmers"
     base_url = "https://www.farmers.co.nz"
     sitemap_seeds = [
@@ -18,6 +18,6 @@ class FarmersBeautyLiveAdapter(LiveRetailerAdapter):
         "/sitemap_products_1.xml",
         "/sitemap_products.xml",
     ]
-    include_url_patterns = ["/beauty/", "/product/"]
+    include_url_patterns = ["/home/", "/electrical/"]
     exclude_url_patterns = ["/stores", "/blog", "/help", "?", "#"]
-    fallback_fixture_cls = FarmersBeautyFixtureAdapter
+    fallback_fixture_cls = FarmersHomeFixtureAdapter
