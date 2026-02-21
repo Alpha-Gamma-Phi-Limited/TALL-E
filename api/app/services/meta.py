@@ -11,7 +11,7 @@ from app.core.config import get_settings
 from app.models import Product, Retailer
 from app.schemas.meta import MetaOut
 
-VALID_VERTICALS = {"tech", "pharma", "beauty"}
+VALID_VERTICALS = {"tech", "pharmaceuticals", "beauty", "home-appliances", "supplements", "pet-goods"}
 
 
 def _load_scoring_config(vertical: str | None) -> dict[str, object]:
@@ -40,7 +40,15 @@ def get_meta(db: Session, vertical: str | None = None) -> MetaOut:
     if vertical in VALID_VERTICALS:
         categories_stmt = categories_stmt.where(Product.vertical == vertical)
         brands_stmt = brands_stmt.where(Product.vertical == vertical)
-        retailer_stmt = retailer_stmt.where(Retailer.vertical == vertical)
+        # Find retailers that have products in this vertical
+        from app.models import RetailerProduct
+        retailer_stmt = (
+            select(Retailer.slug, Retailer.display_name)
+            .join(RetailerProduct)
+            .join(Product)
+            .where(Product.vertical == vertical, Retailer.active.is_(True))
+            .distinct()
+        )
 
     categories = sorted([row[0] for row in db.execute(categories_stmt).all() if row[0]])
     brands = sorted([row[0] for row in db.execute(brands_stmt).all() if row[0]])

@@ -69,4 +69,31 @@ def compute_value_score(category: str, attributes: dict[str, Any], effective_pri
         price_penalty = _normalize(effective_price, 350, 2400)
         return max(0.0, min(1.0, perf * 0.82 + (1 - price_penalty) * 0.18))
 
+    if category_key == "fridges":
+        capacity = _to_float(attributes.get("capacity_l"))
+        energy = _to_float(attributes.get("energy_rating"))
+        if capacity is None:
+            return None
+        score = 0.5 * _normalize(capacity, 200, 1000) + 0.5 * (_normalize(energy, 1, 6) if energy else 0.5)
+        price_penalty = _normalize(effective_price, 500, 5000)
+        return max(0.0, min(1.0, score * 0.8 + (1 - price_penalty) * 0.2))
+
+    if category_key == "washing-machines":
+        capacity = _to_float(attributes.get("capacity_kg"))
+        energy = _to_float(attributes.get("energy_rating"))
+        if capacity is None:
+            return None
+        score = 0.5 * _normalize(capacity, 5, 16) + 0.5 * (_normalize(energy, 1, 6) if energy else 0.5)
+        price_penalty = _normalize(effective_price, 400, 3000)
+        return max(0.0, min(1.0, score * 0.8 + (1 - price_penalty) * 0.2))
+
+    if category_key == "dishwashers":
+        settings = _to_float(attributes.get("place_settings"))
+        energy = _to_float(attributes.get("energy_rating"))
+        if settings is None:
+            return None
+        score = 0.5 * _normalize(settings, 6, 16) + 0.5 * (_normalize(energy, 1, 6) if energy else 0.5)
+        price_penalty = _normalize(effective_price, 500, 2500)
+        return max(0.0, min(1.0, score * 0.8 + (1 - price_penalty) * 0.2))
+
     return None

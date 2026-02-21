@@ -126,7 +126,6 @@ def search_products(db: Session, params: ProductSearchParams) -> ProductsListOut
     filters = []
     if params.vertical:
         filters.append(Product.vertical == params.vertical)
-        filters.append(Retailer.vertical == params.vertical)
     if params.q:
         term = f"%{params.q.lower()}%"
         filters.append(
@@ -193,7 +192,7 @@ def search_products(db: Session, params: ProductSearchParams) -> ProductsListOut
             effective = best_offer.promo_price_nzd or best_offer.price_nzd
 
         score = None
-        if row.vertical == "tech":
+        if row.vertical in ("tech", "home-appliances", "supplements"):
             score = compute_value_score(row.category, product_attributes or {}, effective)
 
         built_items.append(

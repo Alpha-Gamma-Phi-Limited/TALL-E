@@ -9,12 +9,19 @@ DEFAULT_RETAILERS = [
     ("noel-leeming", "Noel Leeming", "tech"),
     ("harvey-norman", "Harvey Norman", "tech"),
     ("apple", "Apple", "tech"),
-    ("chemist-warehouse", "Chemist Warehouse", "pharma"),
-    ("bargain-chemist", "Bargain Chemist", "pharma"),
-    ("life-pharmacy", "Life Pharmacy", "pharma"),
+    ("chemist-warehouse", "Chemist Warehouse", "pharmaceuticals"),
+    ("bargain-chemist", "Bargain Chemist", "pharmaceuticals"),
+    ("life-pharmacy", "Life Pharmacy", "pharmaceuticals"),
     ("mecca", "Mecca", "beauty"),
     ("sephora", "Sephora", "beauty"),
-    ("farmers-beauty", "Farmers Beauty", "beauty"),
+    ("farmers", "Farmers", "home-appliances"),
+    ("mighty-ape", "Mighty Ape", "tech"),
+    ("heathcotes", "Heathcotes", "home-appliances"),
+    ("the-warehouse", "The Warehouse", "home-appliances"),
+    ("supplements-co-nz", "Supplements.co.nz", "supplements"),
+    ("animates", "Animates", "pet-goods"),
+    ("petdirect", "Petdirect", "pet-goods"),
+    ("pet-co-nz", "Pet.co.nz", "pet-goods"),
 ]
 
 

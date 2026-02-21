@@ -35,12 +35,12 @@ def test_products_v2_tech_scope(client):
     assert payload["items"][0]["vertical"] == "tech"
 
 
-def test_products_v2_pharma_scope(client):
-    response = client.get("/v2/products", params={"vertical": "pharma", "q": "panadol"})
+def test_products_v2_pharmaceuticals_scope(client):
+    response = client.get("/v2/products", params={"vertical": "pharmaceuticals", "q": "panadol"})
     assert response.status_code == 200
     payload = response.json()
     assert payload["total"] == 1
-    assert payload["items"][0]["vertical"] == "pharma"
+    assert payload["items"][0]["vertical"] == "pharmaceuticals"
     assert payload["items"][0]["value_score"] is None
 
 
@@ -50,15 +50,36 @@ def test_products_v2_beauty_scope(client):
     payload = response.json()
     assert payload["total"] == 1
     assert payload["items"][0]["vertical"] == "beauty"
-    assert payload["items"][0]["best_offer"]["retailer"] in {"mecca", "sephora", "farmers-beauty"}
+    assert payload["items"][0]["best_offer"]["retailer"] in {"mecca", "sephora", "farmers"}
+    assert payload["items"][0]["value_score"] is None
+
+
+def test_products_v2_home_appliances_scope(client):
+    response = client.get("/v2/products", params={"vertical": "home-appliances", "q": "samsung"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert payload["items"][0]["vertical"] == "home-appliances"
+    assert payload["items"][0]["best_offer"]["retailer"] == "farmers"
+    assert payload["items"][0]["value_score"] is not None
+    assert 0 <= payload["items"][0]["value_score"] <= 1
+
+
+def test_products_v2_pet_goods_scope(client):
+    response = client.get("/v2/products", params={"vertical": "pet-goods", "q": "royal canin"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total"] == 1
+    assert payload["items"][0]["vertical"] == "pet-goods"
+    assert payload["items"][0]["best_offer"]["retailer"] in {"animates", "petdirect", "pet-co-nz"}
     assert payload["items"][0]["value_score"] is None
 
 
 def test_meta_v2_scoped(client):
-    response = client.get("/v2/meta", params={"vertical": "pharma"})
+    response = client.get("/v2/meta", params={"vertical": "pharmaceuticals"})
     assert response.status_code == 200
     payload = response.json()
-    assert payload["vertical"] == "pharma"
+    assert payload["vertical"] == "pharmaceuticals"
     assert any(retailer["slug"] == "chemist-warehouse" for retailer in payload["retailers"])
 
 
@@ -70,9 +91,28 @@ def test_meta_v2_beauty_scope(client):
     assert any(retailer["slug"] == "mecca" for retailer in payload["retailers"])
 
 
+def test_meta_v2_home_appliances_scope(client):
+    response = client.get("/v2/meta", params={"vertical": "home-appliances"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["vertical"] == "home-appliances"
+    assert "fridges" in payload["categories"]
+    assert any(retailer["slug"] == "farmers" for retailer in payload["retailers"])
+
+
+def test_meta_v2_pet_goods_scope(client):
+    response = client.get("/v2/meta", params={"vertical": "pet-goods"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["vertical"] == "pet-goods"
+    assert "pet-food" in payload["categories"]
+    retailer_slugs = {retailer["slug"] for retailer in payload["retailers"]}
+    assert {"animates", "petdirect", "pet-co-nz"}.issubset(retailer_slugs)
+
+
 def test_product_detail_v2_vertical_guard(client):
     tech_product = client.get("/v2/products", params={"vertical": "tech", "q": "acer"}).json()["items"][0]
-    response = client.get(f"/v2/products/{tech_product['id']}", params={"vertical": "pharma"})
+    response = client.get(f"/v2/products/{tech_product['id']}", params={"vertical": "pharmaceuticals"})
     assert response.status_code == 404
 
 

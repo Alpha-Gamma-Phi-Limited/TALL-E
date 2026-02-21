@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from app.db.base import Base
 from app.db.seed import seed_retailers
@@ -16,7 +17,11 @@ TEST_DB_URL = "sqlite:///:memory:"
 
 @pytest.fixture()
 def session() -> Session:
-    engine = create_engine(TEST_DB_URL)
+    engine = create_engine(
+        TEST_DB_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     TestingSessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
@@ -28,7 +33,10 @@ def session() -> Session:
     bc = db.query(Retailer).filter(Retailer.slug == "bargain-chemist").one()
     mecca = db.query(Retailer).filter(Retailer.slug == "mecca").one()
     sephora = db.query(Retailer).filter(Retailer.slug == "sephora").one()
-    farmers_beauty = db.query(Retailer).filter(Retailer.slug == "farmers-beauty").one()
+    farmers_beauty = db.query(Retailer).filter(Retailer.slug == "farmers").one()
+    animates = db.query(Retailer).filter(Retailer.slug == "animates").one()
+    petdirect = db.query(Retailer).filter(Retailer.slug == "petdirect").one()
+    pet_co_nz = db.query(Retailer).filter(Retailer.slug == "pet-co-nz").one()
 
     product = Product(
         canonical_name="Acer Nitro 16 Laptop",
@@ -46,7 +54,7 @@ def session() -> Session:
 
     pharma_product = Product(
         canonical_name="Panadol Tablets 500mg 20 Pack",
-        vertical="pharma",
+        vertical="pharmaceuticals",
         brand="Panadol",
         category="otc",
         model_number="PAN-500-20",
@@ -70,6 +78,34 @@ def session() -> Session:
         searchable_text="the ordinary niacinamide zinc serum 30ml",
     )
     db.add(beauty_product)
+    db.flush()
+
+    home_product = Product(
+        canonical_name="Samsung 635L Side by Side Fridge",
+        vertical="home-appliances",
+        brand="Samsung",
+        category="fridges",
+        model_number="SRS674DLS",
+        gtin="8806092080353",
+        mpn="SRS674DLS",
+        attributes={"capacity_l": 635, "energy_rating": 3.5, "type": "side-by-side"},
+        searchable_text="samsung 635l side by side fridge",
+    )
+    db.add(home_product)
+    db.flush()
+
+    pet_product = Product(
+        canonical_name="Royal Canin Maxi Adult Dry Dog Food 15kg",
+        vertical="pet-goods",
+        brand="Royal Canin",
+        category="pet-food",
+        model_number="MAXI-ADULT-15KG",
+        gtin="3182550402219",
+        mpn="RC-MAXI-15",
+        attributes={"pet_type": "dog", "weight_kg": 15},
+        searchable_text="royal canin maxi adult dog food 15kg",
+    )
+    db.add(pet_product)
     db.flush()
 
     rp1 = RetailerProduct(
@@ -141,14 +177,54 @@ def session() -> Session:
     rp7 = RetailerProduct(
         retailer_id=farmers_beauty.id,
         product_id=beauty_product.id,
-        source_product_id="farmers-beauty-1",
+        source_product_id="farmers-1",
         title="The Ordinary Niacinamide 10% + Zinc 1% 30ml",
         url="https://example.com/farmers/niacinamide-30",
         image_url="https://example.com/farmers/niacinamide.jpg",
         raw_attributes={"product_type": "serum", "size_ml": 30},
         availability="in_stock",
     )
-    db.add_all([rp5, rp6, rp7])
+    rp8 = RetailerProduct(
+        retailer_id=farmers_beauty.id,
+        product_id=home_product.id,
+        source_product_id="farmers-home-1",
+        title="Samsung 635L Side by Side Fridge",
+        url="https://example.com/farmers/samsung-fridge",
+        image_url="https://example.com/farmers/fridge.jpg",
+        raw_attributes={"capacity_l": 635, "energy_rating": 3.5},
+        availability="in_stock",
+    )
+    rp9 = RetailerProduct(
+        retailer_id=animates.id,
+        product_id=pet_product.id,
+        source_product_id="animates-pet-1",
+        title="Royal Canin Maxi Adult Dry Dog Food 15kg",
+        url="https://example.com/animates/royal-canin-maxi-adult-15kg",
+        image_url="https://example.com/animates/royal-canin-maxi-adult-15kg.jpg",
+        raw_attributes={"pet_type": "dog", "weight_kg": 15},
+        availability="in_stock",
+    )
+    rp10 = RetailerProduct(
+        retailer_id=petdirect.id,
+        product_id=pet_product.id,
+        source_product_id="petdirect-pet-1",
+        title="Royal Canin Maxi Adult Dog Food 15kg",
+        url="https://example.com/petdirect/royal-canin-maxi-adult-15kg",
+        image_url="https://example.com/petdirect/royal-canin-maxi-adult-15kg.jpg",
+        raw_attributes={"pet_type": "dog", "weight_kg": 15},
+        availability="in_stock",
+    )
+    rp11 = RetailerProduct(
+        retailer_id=pet_co_nz.id,
+        product_id=pet_product.id,
+        source_product_id="pet-co-nz-pet-1",
+        title="Royal Canin Maxi Adult 15kg",
+        url="https://example.com/pet-co-nz/royal-canin-maxi-adult-15kg",
+        image_url="https://example.com/pet-co-nz/royal-canin-maxi-adult-15kg.jpg",
+        raw_attributes={"pet_type": "dog", "weight_kg": 15},
+        availability="in_stock",
+    )
+    db.add_all([rp5, rp6, rp7, rp8, rp9, rp10, rp11])
     db.flush()
 
     db.add_all(
@@ -204,6 +280,38 @@ def session() -> Session:
             LatestPrice(
                 retailer_product_id=rp7.id,
                 price_nzd=Decimal("13.99"),
+                promo_price_nzd=None,
+                promo_text=None,
+                discount_pct=None,
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp8.id,
+                price_nzd=Decimal("2499.00"),
+                promo_price_nzd=Decimal("2199.00"),
+                promo_text="Special",
+                discount_pct=Decimal("12.00"),
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp9.id,
+                price_nzd=Decimal("179.99"),
+                promo_price_nzd=Decimal("159.99"),
+                promo_text="Club price",
+                discount_pct=Decimal("11.11"),
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp10.id,
+                price_nzd=Decimal("174.99"),
+                promo_price_nzd=Decimal("164.99"),
+                promo_text="Auto-ship save",
+                discount_pct=Decimal("5.71"),
+                captured_at=datetime.now(timezone.utc),
+            ),
+            LatestPrice(
+                retailer_product_id=rp11.id,
+                price_nzd=Decimal("169.99"),
                 promo_price_nzd=None,
                 promo_text=None,
                 discount_pct=None,
