@@ -1,0 +1,4 @@
+{
+  "otc": ["active_ingredient", "strength", "form", "pack_size", "dosage_unit"],
+  "supplements": ["active_ingredient", "strength", "form", "pack_size", "dosage_unit"]
+}

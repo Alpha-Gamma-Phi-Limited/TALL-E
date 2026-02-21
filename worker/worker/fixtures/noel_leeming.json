@@ -1,0 +1,47 @@
+{
+  "retailer": "noel-leeming",
+  "items": [
+    {
+      "source_product_id": "nl-lap-501",
+      "title": "Acer Nitro 16 Gaming Notebook",
+      "url": "https://www.noelleeming.co.nz/product/nl-lap-501",
+      "image_url": "https://cdn.example/nl/acer-nitro-16.jpg",
+      "category": "laptops",
+      "brand": "Acer",
+      "availability": "in_stock",
+      "gtin": null,
+      "mpn": "AN16-51-99",
+      "model_number": "AN16-51",
+      "attributes": {
+        "cpu_score": 7050,
+        "ram_gb": 16,
+        "storage_gb": 512
+      },
+      "price_nzd": 1899.0,
+      "promo_price_nzd": 1799.0,
+      "promo_text": "Price drop",
+      "discount_pct": 5.3
+    },
+    {
+      "source_product_id": "nl-mon-88",
+      "title": "LG UltraGear 27 inch 165Hz",
+      "url": "https://www.noelleeming.co.nz/product/nl-mon-88",
+      "image_url": "https://cdn.example/nl/lg-ultragear.jpg",
+      "category": "monitors",
+      "brand": "LG",
+      "availability": "in_stock",
+      "gtin": "6677889900112",
+      "mpn": "27GS75Q",
+      "model_number": "27GS75Q",
+      "attributes": {
+        "refresh_rate_hz": 165,
+        "panel_type": "IPS",
+        "resolution": "1440p"
+      },
+      "price_nzd": 549.0,
+      "promo_price_nzd": 499.0,
+      "promo_text": "Member deal",
+      "discount_pct": 9.1
+    }
+  ]
+}

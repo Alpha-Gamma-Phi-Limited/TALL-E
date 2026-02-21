@@ -1,0 +1,6 @@
+sqlalchemy==2.0.38
+pydantic-settings==2.8.1
+rapidfuzz==3.11.0
+psycopg[binary]==3.2.4
+httpx==0.28.1
+beautifulsoup4==4.13.3

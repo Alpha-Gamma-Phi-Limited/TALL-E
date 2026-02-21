@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: worthit
+      POSTGRES_USER: worthit
+      POSTGRES_PASSWORD: worthit
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ../api
+    environment:
+      WORTHIT_DATABASE_URL: postgresql+psycopg://worthit:worthit@postgres:5432/worthit
+      WORTHIT_REDIS_URL: redis://redis:6379/0
+      WORTHIT_ADMIN_TOKEN: dev-admin-token
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../shared:/app/shared
+
+  worker:
+    build:
+      context: ../worker
+    environment:
+      WORTHIT_DATABASE_URL: postgresql+psycopg://worthit:worthit@postgres:5432/worthit
+    depends_on:
+      - postgres
+    profiles:
+      - workers
+
+  web:
+    build:
+      context: ../web
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
+volumes:
+  pgdata:

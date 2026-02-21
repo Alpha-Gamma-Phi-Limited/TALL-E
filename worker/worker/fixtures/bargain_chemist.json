@@ -1,0 +1,51 @@
+{
+  "retailer": "bargain-chemist",
+  "items": [
+    {
+      "source_product_id": "bc-otc-901",
+      "title": "Panadol 500mg Tablets 20",
+      "url": "https://www.bargainchemist.co.nz/products/bc-otc-901",
+      "image_url": "https://cdn.example.nz/bc/panadol-20.jpg",
+      "category": "otc",
+      "brand": "Panadol",
+      "availability": "in_stock",
+      "gtin": "9300673830010",
+      "mpn": "PAN500-20",
+      "model_number": "PAN-500-20",
+      "attributes": {
+        "active_ingredient": "paracetamol",
+        "strength": "500mg",
+        "form": "tablet",
+        "pack_size": 20,
+        "dosage_unit": "tablet"
+      },
+      "price_nzd": 6.49,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "bc-sup-877",
+      "title": "GO Vita-C 1000mg 60 Tablets",
+      "url": "https://www.bargainchemist.co.nz/products/bc-sup-877",
+      "image_url": "https://cdn.example.nz/bc/vitc-60.jpg",
+      "category": "supplements",
+      "brand": "GO",
+      "availability": "in_stock",
+      "gtin": "9421902966154",
+      "mpn": "GO-C1000-60",
+      "model_number": "GO-VITC-1000-60",
+      "attributes": {
+        "active_ingredient": "vitamin c",
+        "strength": "1000mg",
+        "form": "tablet",
+        "pack_size": 60,
+        "dosage_unit": "tablet"
+      },
+      "price_nzd": 17.99,
+      "promo_price_nzd": 15.99,
+      "promo_text": "Online only",
+      "discount_pct": 11.12
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "retailer": "harvey-norman",
+  "items": [
+    {
+      "source_product_id": "hn-lap-77",
+      "title": "Acer Nitro16 AN16-51 Gaming Laptop",
+      "url": "https://www.harveynorman.co.nz/product/hn-lap-77",
+      "image_url": "https://cdn.example/hn/acer-nitro-16.jpg",
+      "category": "laptops",
+      "brand": "Acer",
+      "availability": "in_stock",
+      "gtin": null,
+      "mpn": null,
+      "model_number": "AN16/51",
+      "attributes": {
+        "cpu_score": 7000,
+        "ram_gb": 16,
+        "storage_gb": 512
+      },
+      "price_nzd": 1859.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "hn-phone-301",
+      "title": "Samsung Galaxy S25 256GB Phone",
+      "url": "https://www.harveynorman.co.nz/product/hn-phone-301",
+      "image_url": "https://cdn.example/hn/s25.jpg",
+      "category": "phones",
+      "brand": "Samsung",
+      "availability": "in_stock",
+      "gtin": "5511223344556",
+      "mpn": "SM-S25-256",
+      "model_number": "S25",
+      "attributes": {
+        "chipset_tier": "flagship",
+        "ram_gb": 12,
+        "storage_gb": 256,
+        "battery_mah": 4700
+      },
+      "price_nzd": 1650.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

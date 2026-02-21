@@ -1,0 +1,51 @@
+{
+  "retailer": "life-pharmacy",
+  "items": [
+    {
+      "source_product_id": "lp-otc-311",
+      "title": "Panadol Caplets 500mg 24 Pack",
+      "url": "https://www.lifepharmacy.co.nz/product/lp-otc-311",
+      "image_url": "https://cdn.example.nz/lp/panadol-24.jpg",
+      "category": "otc",
+      "brand": "Panadol",
+      "availability": "in_stock",
+      "gtin": "9300673830027",
+      "mpn": "PAN500-24",
+      "model_number": "PAN-500-24",
+      "attributes": {
+        "active_ingredient": "paracetamol",
+        "strength": "500mg",
+        "form": "caplet",
+        "pack_size": 24,
+        "dosage_unit": "caplet"
+      },
+      "price_nzd": 8.99,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "lp-sup-722",
+      "title": "GO Vitamin C 1000mg 60 Tablets",
+      "url": "https://www.lifepharmacy.co.nz/product/lp-sup-722",
+      "image_url": "https://cdn.example.nz/lp/vitc-60.jpg",
+      "category": "supplements",
+      "brand": "GO",
+      "availability": "in_stock",
+      "gtin": "9421902966154",
+      "mpn": "GO-C1000-60",
+      "model_number": "GO-VITC-1000-60",
+      "attributes": {
+        "active_ingredient": "vitamin c",
+        "strength": "1000mg",
+        "form": "tablet",
+        "pack_size": 60,
+        "dosage_unit": "tablet"
+      },
+      "price_nzd": 19.99,
+      "promo_price_nzd": 16.99,
+      "promo_text": "Club discount",
+      "discount_pct": 15.01
+    }
+  ]
+}

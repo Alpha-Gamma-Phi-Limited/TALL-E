@@ -1,0 +1,51 @@
+{
+  "retailer": "chemist-warehouse",
+  "items": [
+    {
+      "source_product_id": "cw-otc-001",
+      "title": "Panadol Tablets 500mg 20 Pack",
+      "url": "https://www.chemistwarehouse.co.nz/buy/cw-otc-001",
+      "image_url": "https://cdn.example.nz/cw/panadol-20.jpg",
+      "category": "otc",
+      "brand": "Panadol",
+      "availability": "in_stock",
+      "gtin": "9300673830010",
+      "mpn": "PAN500-20",
+      "model_number": "PAN-500-20",
+      "attributes": {
+        "active_ingredient": "paracetamol",
+        "strength": "500mg",
+        "form": "tablet",
+        "pack_size": 20,
+        "dosage_unit": "tablet"
+      },
+      "price_nzd": 6.99,
+      "promo_price_nzd": 5.99,
+      "promo_text": "Member special",
+      "discount_pct": 14.31
+    },
+    {
+      "source_product_id": "cw-sup-101",
+      "title": "GO Vitamin C 1000mg 60 Tablets",
+      "url": "https://www.chemistwarehouse.co.nz/buy/cw-sup-101",
+      "image_url": "https://cdn.example.nz/cw/vitc-60.jpg",
+      "category": "supplements",
+      "brand": "GO",
+      "availability": "in_stock",
+      "gtin": "9421902966154",
+      "mpn": "GO-C1000-60",
+      "model_number": "GO-VITC-1000-60",
+      "attributes": {
+        "active_ingredient": "vitamin c",
+        "strength": "1000mg",
+        "form": "tablet",
+        "pack_size": 60,
+        "dosage_unit": "tablet"
+      },
+      "price_nzd": 18.49,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

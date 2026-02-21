@@ -1,0 +1,30 @@
+{
+  "laptops": {
+    "weights": {
+      "cpu_score": 0.45,
+      "ram_gb": 0.30,
+      "storage_gb": 0.25,
+      "price_penalty": 0.15
+    },
+    "required": ["cpu_score", "ram_gb", "storage_gb"]
+  },
+  "phones": {
+    "weights": {
+      "chipset_tier": 0.40,
+      "ram_gb": 0.20,
+      "storage_gb": 0.25,
+      "battery_mah": 0.15,
+      "price_penalty": 0.18
+    },
+    "required": ["ram_gb", "storage_gb"]
+  },
+  "monitors": {
+    "weights": {
+      "refresh_rate_hz": 0.50,
+      "panel_type": 0.25,
+      "resolution": 0.25,
+      "price_penalty": 0.20
+    },
+    "required": ["refresh_rate_hz"]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "laptops": [
+    { "key": "cpu_score", "label": "CPU Score", "type": "number", "filterable": true },
+    { "key": "ram_gb", "label": "RAM (GB)", "type": "number", "filterable": true },
+    { "key": "storage_gb", "label": "Storage (GB)", "type": "number", "filterable": true }
+  ],
+  "phones": [
+    { "key": "chipset_tier", "label": "Chipset Tier", "type": "string", "filterable": true },
+    { "key": "ram_gb", "label": "RAM (GB)", "type": "number", "filterable": true },
+    { "key": "storage_gb", "label": "Storage (GB)", "type": "number", "filterable": true },
+    { "key": "battery_mah", "label": "Battery (mAh)", "type": "number", "filterable": false }
+  ],
+  "monitors": [
+    { "key": "refresh_rate_hz", "label": "Refresh Rate", "type": "number", "filterable": true },
+    { "key": "panel_type", "label": "Panel Type", "type": "string", "filterable": true },
+    { "key": "resolution", "label": "Resolution", "type": "string", "filterable": true }
+  ]
+}

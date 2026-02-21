@@ -1,0 +1,47 @@
+{
+  "retailer": "pb-tech",
+  "items": [
+    {
+      "source_product_id": "pb-lap-100",
+      "title": "Acer Nitro 16 Gaming Laptop AN16-51",
+      "url": "https://www.pbtech.co.nz/product/pb-lap-100",
+      "image_url": "https://cdn.example/pb/acer-nitro-16.jpg",
+      "category": "laptops",
+      "brand": "Acer",
+      "availability": "in_stock",
+      "gtin": "1234567890123",
+      "mpn": "AN16-51-99",
+      "model_number": "AN16-51",
+      "attributes": {
+        "cpu_score": 7200,
+        "ram_gb": 16,
+        "storage_gb": 512
+      },
+      "price_nzd": 1999.0,
+      "promo_price_nzd": 1799.0,
+      "promo_text": "Weekend deal",
+      "discount_pct": 10.0
+    },
+    {
+      "source_product_id": "pb-mon-200",
+      "title": "Samsung Odyssey G5 27 144Hz",
+      "url": "https://www.pbtech.co.nz/product/pb-mon-200",
+      "image_url": "https://cdn.example/pb/g5.jpg",
+      "category": "monitors",
+      "brand": "Samsung",
+      "availability": "in_stock",
+      "gtin": "9988776655443",
+      "mpn": "LS27CG552EEXXY",
+      "model_number": "G5-27",
+      "attributes": {
+        "refresh_rate_hz": 144,
+        "panel_type": "VA",
+        "resolution": "1440p"
+      },
+      "price_nzd": 449.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    }
+  ]
+}

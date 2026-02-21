@@ -1,0 +1,48 @@
+{
+  "retailer": "jb-hi-fi",
+  "items": [
+    {
+      "source_product_id": "jb-lap-20",
+      "title": "Acer Nitro 16 Laptop",
+      "url": "https://www.jbhifi.co.nz/products/jb-lap-20",
+      "image_url": "https://cdn.example/jb/acer-nitro-16.jpg",
+      "category": "laptops",
+      "brand": "Acer",
+      "availability": "in_stock",
+      "gtin": "1234567890123",
+      "mpn": "AN16-51-99",
+      "model_number": "AN16-51",
+      "attributes": {
+        "cpu_score": 7100,
+        "ram_gb": 16,
+        "storage_gb": 512
+      },
+      "price_nzd": 1949.0,
+      "promo_price_nzd": null,
+      "promo_text": null,
+      "discount_pct": null
+    },
+    {
+      "source_product_id": "jb-phone-50",
+      "title": "Samsung Galaxy S25 256GB",
+      "url": "https://www.jbhifi.co.nz/products/jb-phone-50",
+      "image_url": "https://cdn.example/jb/s25.jpg",
+      "category": "phones",
+      "brand": "Samsung",
+      "availability": "preorder",
+      "gtin": "5511223344556",
+      "mpn": "SM-S25-256",
+      "model_number": "S25",
+      "attributes": {
+        "chipset_tier": "flagship",
+        "ram_gb": 12,
+        "storage_gb": 256,
+        "battery_mah": 4700
+      },
+      "price_nzd": 1699.0,
+      "promo_price_nzd": 1599.0,
+      "promo_text": "Launch promo",
+      "discount_pct": 5.9
+    }
+  ]
+}
