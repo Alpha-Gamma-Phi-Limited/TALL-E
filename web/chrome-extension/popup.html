@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WorthIt Assistant</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <p class="eyebrow">WorthIt Assistant</p>
+        <h1>Live Price Check</h1>
+      </header>
+
+      <section class="search-panel">
+        <label for="query">Search products</label>
+        <div class="search-row">
+          <input id="query" type="text" placeholder="e.g. Sony WH-1000XM5" autocomplete="off" />
+          <button id="search">Search</button>
+        </div>
+        <div class="filters">
+          <label>
+            Vertical
+            <select id="vertical">
+              <option value="tech">Tech</option>
+              <option value="home-appliances">Home & Appliances</option>
+              <option value="pharmaceuticals">Pharmaceuticals</option>
+              <option value="supplements">Supplements</option>
+              <option value="beauty">Beauty</option>
+              <option value="pet-goods">Pet Goods</option>
+            </select>
+          </label>
+          <label>
+            Max budget (NZD)
+            <input id="budget" type="number" min="1" step="1" placeholder="Optional" />
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-title-row">
+          <h2>Top Matches</h2>
+          <span id="status" class="status-pill">Ready</span>
+        </div>
+        <ul id="results" class="results"></ul>
+      </section>
+
+      <footer>
+        <button id="openWeb" class="ghost">Open full dashboard</button>
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
