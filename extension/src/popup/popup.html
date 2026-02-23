@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Price Tracker</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup">
+      <header class="topbar">
+        <div class="brand-wrap">
+          <div class="logo" aria-hidden="true">🏷</div>
+          <div>
+            <h1 class="brand-title">Tall-E</h1>
+            <p class="brand-subtitle">Price Tracker</p>
+          </div>
+        </div>
+        <span id="modePill" class="pill">Mock</span>
+      </header>
+
+      <section class="panel context-panel" aria-labelledby="contextHeading">
+        <h2 id="contextHeading">Current page context</h2>
+        <p id="contextTitle" class="context-title">Loading page context…</p>
+        <p id="contextUrl" class="context-url">—</p>
+      </section>
+
+      <section class="panel" aria-labelledby="simHeading">
+        <div class="section-title-row">
+          <h2 id="simHeading">Similar products and prices</h2>
+          <span id="loadingState" class="loading" hidden>Loading…</span>
+        </div>
+
+        <div class="slider-header">
+          <button id="prevBtn" class="nav-btn" type="button" aria-label="Previous product">‹</button>
+          <p id="sliderMeta" class="slider-meta">Item 1 of 3</p>
+          <button id="nextBtn" class="nav-btn" type="button" aria-label="Next product">›</button>
+        </div>
+
+        <article class="product-card">
+          <img id="similarImage" class="product-image" alt="Similar product preview" src="" />
+          <div class="product-info">
+            <p id="similarStore" class="product-store">Store</p>
+            <p id="detectedProduct" class="product-name">—</p>
+            <p id="currentPrice" class="product-price">—</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="graphHeading">
+        <h2 id="graphHeading">Price history graph</h2>
+        <div class="graph-stats">
+          <span id="statLow">Lowest: —</span>
+          <span id="statAvg">Average: —</span>
+          <span id="statHigh">Highest: —</span>
+        </div>
+        <canvas id="historyCanvas" width="336" height="150" aria-label="Price history"></canvas>
+      </section>
+
+      <section class="panel" aria-labelledby="lowsHeading">
+        <h2 id="lowsHeading">Historic cheap points</h2>
+        <ul id="lowPoints" class="low-points">
+          <li>Waiting for price history…</li>
+        </ul>
+      </section>
+
+      <details class="panel">
+        <summary>Raw JSON</summary>
+        <pre id="jsonOutput" class="json-output">{}</pre>
+      </details>
+
+      <div class="actions">
+        <button id="refreshBtn" class="btn btn-primary" type="button">Refresh</button>
+        <button id="copyBtn" class="btn btn-secondary" type="button">Copy JSON</button>
+      </div>
+
+      <p id="message" class="message" role="status"></p>
+    </main>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

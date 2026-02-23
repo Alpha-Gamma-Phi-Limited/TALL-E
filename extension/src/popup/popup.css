@@ -1,0 +1,272 @@
+:root {
+  --navy: #273c63;
+  --navy-soft: #32486f;
+  --panel: #2d4267;
+  --panel-border: #3f557a;
+  --text: #f7f9ff;
+  --muted: #c2cde2;
+  --accent: #36c7ff;
+  --warn: #ffc857;
+  --danger: #ff7b7b;
+  --line: #2ed6ff;
+  --low: #2ad26f;
+  --avg: #f4cf57;
+  --high: #ff7a45;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--navy);
+  color: var(--text);
+}
+
+.popup {
+  width: 360px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--navy);
+}
+
+.topbar {
+  background: #22385d;
+  border: 1px solid #344c76;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f7f9ff;
+  color: #22385d;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.pill {
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid #5875ad;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #1f3150;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 0.93rem;
+}
+
+.context-title {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.context-url {
+  margin: 4px 0 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.loading {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+.slider-header {
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.slider-meta {
+  margin: 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.nav-btn {
+  border: 1px solid #5a739b;
+  background: #21365a;
+  color: #fff;
+  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.product-card {
+  background: #21365a;
+  border: 1px solid #3e5781;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.product-image {
+  display: block;
+  width: 100%;
+  height: 122px;
+  object-fit: cover;
+  background: #eaf1ff;
+}
+
+.product-info {
+  padding: 8px;
+}
+
+.product-store {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.product-name {
+  margin: 5px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.product-price {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #b8f0ff;
+}
+
+.graph-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.67rem;
+  margin-bottom: 7px;
+}
+
+#statLow {
+  color: var(--low);
+}
+
+#statAvg {
+  color: var(--avg);
+}
+
+#statHigh {
+  color: var(--high);
+}
+
+#historyCanvas {
+  width: 100%;
+  height: 150px;
+  background: #0a2240;
+  border: 1px solid #314f7f;
+  border-radius: 8px;
+}
+
+.low-points {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 5px;
+  font-size: 0.83rem;
+}
+
+details summary {
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.json-output {
+  margin: 9px 0 0;
+  max-height: 130px;
+  overflow: auto;
+  border-radius: 8px;
+  padding: 8px;
+  background: #0d213e;
+  color: #dce8ff;
+  font-size: 0.7rem;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  flex: 1;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 8px;
+  font-size: 0.81rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #f7f9ff;
+  color: #1b2f4f;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #f7f9ff;
+  border-color: #7f97be;
+}
+
+.message {
+  min-height: 15px;
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
